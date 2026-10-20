@@ -181,7 +181,7 @@ export default function GourmetExperiencePage() {
     if (!feedbackText.trim()) return;
     setHasSubmittedFeedback(true);
     setShowFeedbackModal(false);
-    setFeedbackToast("Thank you for your thoughts! 2 Pieces unlocked.");
+    setFeedbackToast("Thank you for your thoughts! Jigsaw Piece unlocked.");
 
     // Rule: Feedback gives piece 2
     const updated = [...collectedPieces];
@@ -223,107 +223,117 @@ export default function GourmetExperiencePage() {
   ];
 
   return (
-    <div className="relative min-h-screen bg-[#F8F9FA] text-[#0D1B2A] flex flex-col items-center">
-      {/* Mobile Shell Container */}
-      <div className="w-full max-w-[430px] min-h-screen bg-white shadow-2xl relative flex flex-col pb-24 overflow-x-hidden">
+    <div className="relative min-h-screen bg-[#F0F2F5] text-[#0A192F] flex flex-col items-center font-sans">
+      {/* 
+        Mobile Device Screen Container:
+        Seamless, flat background (#F8F9FA) exactly like the image with NO white card overlay!
+      */}
+      <div className="w-full max-w-[430px] min-h-screen bg-[#F8F9FA] relative flex flex-col pb-24 overflow-x-hidden shadow-2xl">
         
         {/* ======================================================== */}
-        {/* 1. MENU VIEW (MATCHING image.png PIXEL-PERFECTLY)        */}
+        {/* 1. MENU VIEW: STRICTLY MATCHING Table & Thyme Food Menu  */}
         {/* ======================================================== */}
         {activeTab === "menu" && (
           <div className="w-full flex flex-col">
-            {/* Header Image matching image.png visual curve & bowls */}
-            <div className="relative w-full aspect-[9/10] overflow-hidden bg-[#0A3275]">
+            {/* Header: Pure artwork from image without any phone bezel */}
+            <div className="relative w-full aspect-[780/870] overflow-hidden bg-[#003B87]">
               <Image
-                src="/menu-bg.png"
-                alt="Table & Thyme Food Menu"
+                src="/menu-clean-bg.png"
+                alt="Table & Thyme Food Menu Artwork"
                 fill
                 priority
                 className="object-cover object-top select-none pointer-events-none"
               />
 
-              {/* Status Bar simulation on mockup */}
-              <div className="absolute top-0 left-0 right-0 pt-3 px-6 flex justify-between items-center text-xs text-white/90 font-semibold pointer-events-none z-10">
+              {/* Status bar */}
+              <div className="absolute top-0 left-0 right-0 pt-3.5 px-7 flex justify-between items-center text-xs text-white font-semibold pointer-events-none z-10 tracking-tight">
                 <span>9:41</span>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full border border-white/80 inline-block" />
-                  <span className="text-[10px] font-bold">5G</span>
+                  <div className="flex gap-0.5 items-end h-2.5">
+                    <span className="w-0.5 h-1 bg-white rounded-full inline-block" />
+                    <span className="w-0.5 h-1.5 bg-white rounded-full inline-block" />
+                    <span className="w-0.5 h-2 bg-white rounded-full inline-block" />
+                    <span className="w-0.5 h-2.5 bg-white rounded-full inline-block" />
+                  </div>
+                  <span className="w-2.5 h-2.5 rounded-full border border-white inline-block" />
                 </div>
               </div>
             </div>
 
-            {/* Menu Content matching image.png typography */}
-            <div className="px-6 -mt-10 relative z-20 pb-20 bg-white rounded-t-3xl shadow-[0_-10px_25px_rgba(0,0,0,0.03)]">
-              {/* Header Title: "Food" */}
-              <div className="pt-6 mb-3 flex items-center justify-between">
-                <h2 className="text-3xl font-extrabold text-[#0D1B2A] tracking-tight">
+            {/* 
+              FLAT SEAMLESS MENU LIST:
+              No white card, no border radius cutoff, no card elevation!
+              Flows directly on the background with the exact same typography & colors as in the image.
+            */}
+            <div className="px-7 pt-4 pb-20 bg-[#F8F9FA]">
+              {/* Section Heading: "Food" matching the image font size & color */}
+              <div className="mb-5">
+                <h2 className="text-[34px] font-extrabold text-[#051D45] tracking-tight leading-none">
                   Food
                 </h2>
-                <span className="text-[11px] font-bold text-amber-800 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200/50">
-                  Chef&apos;s Specials
-                </span>
               </div>
 
-              {/* Menu Items List */}
-              <div className="divide-y divide-neutral-100">
+              {/* Menu Items List matching exact layout & dividers */}
+              <div className="divide-y divide-[#E4E8EE]">
                 {MOCK_MENU.map((item) => {
                   const qty = cart[item.id] || 0;
                   return (
                     <div
                       key={item.id}
-                      className="py-4 flex items-start justify-between gap-4 group transition-colors hover:bg-neutral-50/70 rounded-xl px-2 -mx-2"
+                      className="py-5 flex items-start justify-between gap-4 group transition-colors"
                     >
-                      {/* Left: Dish Information */}
+                      {/* Left: Dish Title & Description */}
                       <div
-                        className="flex-1 cursor-pointer"
+                        className="flex-1 cursor-pointer pr-2"
                         onClick={() => setSelectedItemDetail(item)}
                       >
-                        <h3 className="text-base font-bold text-[#0D1B2A] group-hover:text-primary-600 transition-colors">
+                        <h3 className="text-[17px] font-bold text-[#051D45] group-hover:text-[#003B87] transition-colors leading-snug tracking-tight">
                           {item.name}
                         </h3>
-                        <p className="text-xs text-neutral-500 mt-1 leading-relaxed max-w-[230px]">
+                        <p className="text-[13px] text-[#7E89A4] mt-1.5 leading-relaxed font-normal">
                           {item.description}
                         </p>
                       </div>
 
-                      {/* Right: Price & Quantity Controls */}
+                      {/* Right: Price & Chevron > & Add Controls */}
                       <div className="flex flex-col items-end shrink-0 pt-0.5">
                         <div
-                          className="flex items-center gap-1 cursor-pointer"
+                          className="flex items-center gap-1.5 cursor-pointer"
                           onClick={() => setSelectedItemDetail(item)}
                         >
-                          <span className="text-base font-bold text-[#0D1B2A]">
+                          <span className="text-[17px] font-bold text-[#051D45] tracking-tight">
                             ₹{item.price}
                           </span>
-                          <ChevronRight className="w-4 h-4 text-neutral-400 group-hover:text-neutral-900 transition-colors" />
+                          {/* Exact Chevron Arrow from Image */}
+                          <ChevronRight className="w-4 h-4 text-[#051D45] stroke-[2.5] group-hover:translate-x-0.5 transition-transform" />
                         </div>
 
-                        {/* Interactive Add Button */}
+                        {/* Interactive Add to Order Button */}
                         <div className="mt-2.5">
                           {qty === 0 ? (
                             <button
                               onClick={() => addItem(item)}
-                              className="px-3.5 py-1 rounded-full bg-[#0D1B2A] hover:bg-[#1E293B] text-white text-xs font-semibold flex items-center gap-1 shadow-sm active:scale-95 transition-all"
+                              className="px-3.5 py-1 rounded-full bg-[#051D45] hover:bg-[#003B87] text-white text-xs font-semibold flex items-center gap-1 active:scale-95 transition-all shadow-xs"
                             >
-                              <Plus className="w-3 h-3" />
+                              <Plus className="w-3 h-3 stroke-[2.5]" />
                               <span>Add</span>
                             </button>
                           ) : (
-                            <div className="flex items-center gap-2 bg-neutral-100 rounded-full px-2 py-0.5 border border-neutral-200">
+                            <div className="flex items-center gap-2 bg-[#E9ECF2] rounded-full px-2 py-0.5 border border-[#D5DAE5]">
                               <button
                                 onClick={() => removeItem(item.id)}
-                                className="w-5 h-5 rounded-full bg-white flex items-center justify-center text-neutral-700 hover:text-black shadow-xs"
+                                className="w-5 h-5 rounded-full bg-white flex items-center justify-center text-[#051D45] hover:text-black shadow-xs font-bold"
                               >
-                                <Minus className="w-3 h-3" />
+                                <Minus className="w-3 h-3 stroke-[2.5]" />
                               </button>
-                              <span className="text-xs font-bold text-[#0D1B2A] min-w-3 text-center">
+                              <span className="text-xs font-bold text-[#051D45] min-w-3 text-center">
                                 {qty}
                               </span>
                               <button
                                 onClick={() => addItem(item)}
-                                className="w-5 h-5 rounded-full bg-white flex items-center justify-center text-neutral-700 hover:text-black shadow-xs"
+                                className="w-5 h-5 rounded-full bg-white flex items-center justify-center text-[#051D45] hover:text-black shadow-xs font-bold"
                               >
-                                <Plus className="w-3 h-3" />
+                                <Plus className="w-3 h-3 stroke-[2.5]" />
                               </button>
                             </div>
                           )}
@@ -335,30 +345,30 @@ export default function GourmetExperiencePage() {
               </div>
             </div>
 
-            {/* Floating Order Tray */}
+            {/* Floating Order Summary Drawer */}
             {totalCartCount > 0 && (
-              <div className="fixed bottom-20 left-0 right-0 z-30 max-w-[430px] mx-auto px-4">
-                <div className="p-4 rounded-2xl bg-[#0D1B2A] text-white shadow-2xl flex items-center justify-between gap-4 border border-white/10 animate-in slide-in-from-bottom-2">
+              <div className="fixed bottom-20 left-0 right-0 z-30 max-w-[430px] mx-auto px-5">
+                <div className="p-4 rounded-2xl bg-[#003B87] text-white shadow-2xl flex items-center justify-between gap-4 border border-white/10 animate-in slide-in-from-bottom-2">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white">
+                    <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center text-white">
                       <ShoppingBag className="w-5 h-5" />
                     </div>
                     <div>
-                      <span className="text-[11px] text-neutral-300 block font-medium">
-                        {totalCartCount} item(s) • Table 07
+                      <span className="text-xs text-blue-100 block font-medium">
+                        {totalCartCount} item(s) selected
                       </span>
-                      <span className="text-base font-bold text-white">
-                        ₹{grandTotal} <span className="text-[10px] text-neutral-400 font-normal">(incl. tax)</span>
+                      <span className="text-base font-bold text-white tracking-tight">
+                        ₹{grandTotal} <span className="text-[10px] text-blue-200 font-normal">(incl. tax)</span>
                       </span>
                     </div>
                   </div>
 
                   <button
                     onClick={handlePlaceOrder}
-                    className="py-2.5 px-5 rounded-xl bg-white hover:bg-neutral-100 text-[#0D1B2A] font-bold text-xs flex items-center gap-1.5 transition-transform active:scale-95 shadow-md"
+                    className="py-2.5 px-5 rounded-xl bg-white hover:bg-neutral-100 text-[#003B87] font-bold text-xs flex items-center gap-1.5 transition-transform active:scale-95 shadow-md"
                   >
                     <span>Place Order</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                   </button>
                 </div>
               </div>
@@ -367,51 +377,54 @@ export default function GourmetExperiencePage() {
         )}
 
         {/* ======================================================== */}
-        {/* 2. ORDER CONFIRMATION VIEW                               */}
+        {/* 2. ORDER CONFIRMATION VIEW (THEME CONSISTENT)             */}
         {/* ======================================================== */}
         {activeTab === "order" && (
-          <div className="p-5 space-y-4">
-            {/* Top Bar */}
-            <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#0A3275]">
-                Table & Thyme Kitchen
-              </span>
-              <span className="text-xs font-mono text-neutral-500">
+          <div className="p-6 space-y-4">
+            {/* Header matching royal blue brand */}
+            <div className="flex items-center justify-between pb-3 border-b border-[#E4E8EE]">
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#003B87]">
+                  Table & Thyme Kitchen
+                </span>
+                <h1 className="text-xl font-bold text-[#051D45]">Order Status</h1>
+              </div>
+              <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-[#E9ECF2] text-[#051D45]">
                 {currentOrder?.orderNumber || "TT-2049"}
               </span>
             </div>
 
             {/* Exact Required Delivery Message */}
-            <div className="p-6 rounded-3xl bg-neutral-50 border border-neutral-200/80 text-center flex flex-col items-center">
-              <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mb-3 shadow-inner">
+            <div className="p-6 rounded-3xl bg-white border border-[#E4E8EE] shadow-sm text-center flex flex-col items-center">
+              <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
 
-              <h2 className="text-lg font-bold text-[#0D1B2A] tracking-tight">
+              <h2 className="text-lg font-bold text-[#051D45] tracking-tight leading-snug">
                 Thank you, your order will be delivered shortly.
               </h2>
 
-              <p className="text-xs text-neutral-500 mt-1.5 leading-relaxed">
-                Our kitchen brigade is currently preparing your handcrafted artisan dishes.
+              <p className="text-xs text-[#7E89A4] mt-2 leading-relaxed max-w-xs">
+                Our kitchen brigade is currently preparing your seasonal handcrafted bowls.
               </p>
 
-              <div className="flex items-center gap-4 mt-4 pt-3 border-t border-neutral-200/60 text-xs text-neutral-600">
+              <div className="flex items-center gap-4 mt-5 pt-4 border-t border-[#E4E8EE] text-xs text-[#7E89A4]">
                 <div className="flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-neutral-400" />
-                  <span className="font-semibold text-neutral-800">
+                  <MapPin className="w-3.5 h-3.5 text-[#003B87]" />
+                  <span className="font-semibold text-[#051D45]">
                     {currentOrder?.tableNumber || "Table 07 (Garden Terrace)"}
                   </span>
                 </div>
                 <span className="text-neutral-300">•</span>
                 <div className="flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-neutral-400" />
+                  <Clock className="w-3.5 h-3.5 text-[#003B87]" />
                   <span>Est. ~12-15 min</span>
                 </div>
               </div>
             </div>
 
             {/* Jigsaw Incentive Teaser Card */}
-            <div className="p-5 rounded-3xl bg-gradient-to-br from-[#0A3275] to-[#0D1B2A] text-white shadow-lg space-y-3">
+            <div className="p-5 rounded-3xl bg-gradient-to-br from-[#003B87] to-[#051D45] text-white shadow-md space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="p-1.5 rounded-lg bg-white/20 text-white">
@@ -421,7 +434,7 @@ export default function GourmetExperiencePage() {
                     Connoisseur Crest
                   </span>
                 </div>
-                <span className="text-[11px] text-white/80 font-medium">
+                <span className="text-[11px] text-blue-100 font-medium">
                   {collectedPieces.length}/4 Assembled
                 </span>
               </div>
@@ -430,59 +443,59 @@ export default function GourmetExperiencePage() {
                 <h3 className="text-sm font-semibold text-white">
                   Jigsaw Piece #1 Unlocked!
                 </h3>
-                <p className="text-xs text-white/80 mt-1 leading-relaxed">
+                <p className="text-xs text-blue-100 mt-1 leading-relaxed">
                   Your artisan dining order unlocked the Royal Fleur piece. Complete all 4 pieces to enter the Grand Lucky Draw.
                 </p>
               </div>
 
               <button
                 onClick={() => setActiveTab("puzzle")}
-                className="w-full py-2.5 px-4 rounded-xl bg-white text-[#0D1B2A] hover:bg-neutral-100 text-xs font-bold flex items-center justify-center gap-2 transition-transform active:scale-95"
+                className="w-full py-2.5 px-4 rounded-xl bg-white text-[#003B87] hover:bg-neutral-100 text-xs font-bold flex items-center justify-center gap-2 transition-transform active:scale-95"
               >
                 <span>View Jigsaw Puzzle Quest</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
               </button>
             </div>
 
             {/* Order Items Receipt */}
-            <div className="p-4 rounded-2xl bg-white border border-neutral-200 space-y-3">
-              <div className="flex items-center gap-2 text-xs font-bold text-neutral-900 uppercase tracking-wider border-b border-neutral-100 pb-2">
-                <Receipt className="w-4 h-4 text-neutral-400" />
+            <div className="p-5 rounded-3xl bg-white border border-[#E4E8EE] space-y-3">
+              <div className="flex items-center gap-2 text-xs font-bold text-[#051D45] uppercase tracking-wider border-b border-[#E4E8EE] pb-2.5">
+                <Receipt className="w-4 h-4 text-[#7E89A4]" />
                 <span>Order Summary</span>
               </div>
 
-              <div className="divide-y divide-neutral-100 text-xs">
+              <div className="divide-y divide-[#E4E8EE] text-xs">
                 {(currentOrder?.items || [
                   { item: MOCK_MENU[0], quantity: 1 },
                   { item: MOCK_MENU[1], quantity: 1 },
                 ]).map(({ item, quantity }) => (
-                  <div key={item.id} className="py-2 flex items-center justify-between">
-                    <span className="font-medium text-neutral-800">
+                  <div key={item.id} className="py-2.5 flex items-center justify-between">
+                    <span className="font-semibold text-[#051D45]">
                       {quantity}x {item.name}
                     </span>
-                    <span className="font-semibold text-neutral-900">
+                    <span className="font-bold text-[#051D45]">
                       ₹{item.price * quantity}
                     </span>
                   </div>
                 ))}
               </div>
 
-              <div className="pt-2 border-t border-neutral-200 space-y-1 text-xs">
-                <div className="flex justify-between text-neutral-500">
+              <div className="pt-3 border-t border-[#E4E8EE] space-y-1.5 text-xs">
+                <div className="flex justify-between text-[#7E89A4]">
                   <span>Subtotal</span>
                   <span>₹{currentOrder?.subtotal || 528}</span>
                 </div>
-                <div className="flex justify-between text-neutral-500">
+                <div className="flex justify-between text-[#7E89A4]">
                   <span>GST (5%)</span>
                   <span>₹{currentOrder?.tax || 26}</span>
                 </div>
-                <div className="flex justify-between text-neutral-500">
+                <div className="flex justify-between text-[#7E89A4]">
                   <span>Service (5%)</span>
                   <span>₹{currentOrder?.serviceCharge || 26}</span>
                 </div>
-                <div className="flex justify-between text-neutral-900 font-bold text-sm pt-1 border-t border-neutral-100">
+                <div className="flex justify-between text-[#051D45] font-bold text-sm pt-2 border-t border-[#E4E8EE]">
                   <span>Total Paid</span>
-                  <span className="text-[#0A3275]">₹{currentOrder?.total || 580}</span>
+                  <span className="text-[#003B87]">₹{currentOrder?.total || 580}</span>
                 </div>
               </div>
             </div>
@@ -490,26 +503,26 @@ export default function GourmetExperiencePage() {
         )}
 
         {/* ======================================================== */}
-        {/* 3. JIGSAW PUZZLE VIEW                                    */}
+        {/* 3. JIGSAW PUZZLE QUEST VIEW (THEME CONSISTENT)           */}
         {/* ======================================================== */}
         {activeTab === "puzzle" && (
-          <div className="p-5 space-y-4">
+          <div className="p-6 space-y-4">
             {/* Header */}
             <div className="text-center pt-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#0A3275] bg-blue-50 px-3 py-1 rounded-full">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#003B87] bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
                 Loyalty Crest Quest
               </span>
-              <h2 className="text-xl font-bold text-[#0D1B2A] mt-2">
+              <h2 className="text-2xl font-extrabold text-[#051D45] mt-2 tracking-tight">
                 The Connoisseur Jigsaw
               </h2>
-              <p className="text-xs text-neutral-500 mt-1 max-w-xs mx-auto">
+              <p className="text-xs text-[#7E89A4] mt-1 max-w-xs mx-auto leading-relaxed">
                 Assemble all 4 authentic crest pieces to unlock the Grand Lucky Draw.
               </p>
             </div>
 
             {/* Completed Banner */}
             {isPuzzleComplete && (
-              <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-white text-center space-y-2 animate-in zoom-in-95">
+              <div className="p-5 rounded-3xl bg-gradient-to-r from-amber-500 to-amber-600 text-white text-center space-y-2 animate-in zoom-in-95 shadow-md">
                 <div className="flex items-center justify-center gap-1.5 font-bold text-xs uppercase tracking-wider">
                   <Sparkles className="w-4 h-4" />
                   <span>All 4 Pieces Collected!</span>
@@ -519,18 +532,18 @@ export default function GourmetExperiencePage() {
                 </p>
                 <button
                   onClick={() => setActiveTab("draw")}
-                  className="py-2 px-5 rounded-xl bg-white text-neutral-900 font-bold text-xs shadow-md inline-flex items-center gap-1.5 active:scale-95 transition-transform"
+                  className="py-2 px-5 rounded-xl bg-white text-[#051D45] font-bold text-xs shadow-md inline-flex items-center gap-1.5 active:scale-95 transition-transform"
                 >
                   <Gift className="w-4 h-4 text-amber-600" />
                   <span>Open Lucky Draw</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
                 </button>
               </div>
             )}
 
             {/* 4-Piece Interactive Jigsaw Matrix */}
-            <div className="p-5 rounded-3xl bg-neutral-50 border border-neutral-200">
-              <div className="grid grid-cols-2 gap-3 max-w-[260px] mx-auto">
+            <div className="p-5 rounded-3xl bg-white border border-[#E4E8EE] shadow-sm">
+              <div className="grid grid-cols-2 gap-3 max-w-[270px] mx-auto">
                 {puzzleSegments.map((segment) => {
                   const isCollected = collectedPieces.includes(segment.index);
                   return (
@@ -538,8 +551,8 @@ export default function GourmetExperiencePage() {
                       key={segment.index}
                       className={`relative aspect-square rounded-2xl border-2 flex flex-col items-center justify-center p-3 text-center transition-all ${
                         isCollected
-                          ? "border-[#0A3275] bg-white shadow-md text-[#0D1B2A] scale-[1.02]"
-                          : "border-dashed border-neutral-300 bg-neutral-100/50 text-neutral-400"
+                          ? "border-[#003B87] bg-blue-50/40 text-[#051D45] shadow-xs scale-[1.02]"
+                          : "border-dashed border-[#D5DAE5] bg-[#F8F9FA] text-[#7E89A4]"
                       }`}
                     >
                       {isCollected ? (
@@ -548,20 +561,20 @@ export default function GourmetExperiencePage() {
                           <span className="text-[11px] font-bold tracking-tight">
                             {segment.title}
                           </span>
-                          <span className="text-[9px] text-[#0A3275] font-semibold">
+                          <span className="text-[9px] text-[#003B87] font-semibold mt-0.5">
                             Piece #{segment.index + 1}
                           </span>
-                          <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-[#0A3275] text-white flex items-center justify-center">
+                          <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-[#003B87] text-white flex items-center justify-center">
                             <CheckCircle2 className="w-3 h-3" />
                           </div>
                         </>
                       ) : (
                         <>
-                          <Lock className="w-5 h-5 text-neutral-300 mb-1" />
-                          <span className="text-[10px] font-medium text-neutral-400">
+                          <Lock className="w-5 h-5 text-[#B0B9C9] mb-1" />
+                          <span className="text-[10px] font-medium text-[#7E89A4]">
                             Piece #{segment.index + 1}
                           </span>
-                          <span className="text-[9px] text-neutral-400 mt-0.5">Locked</span>
+                          <span className="text-[9px] text-[#B0B9C9] mt-0.5">Locked</span>
                         </>
                       )}
                     </div>
@@ -572,24 +585,24 @@ export default function GourmetExperiencePage() {
 
             {/* Actions to Collect Remaining Pieces */}
             <div className="space-y-2.5">
-              <h3 className="text-xs font-bold text-neutral-700 px-1">
+              <h3 className="text-xs font-bold text-[#051D45] px-1 uppercase tracking-wider">
                 How to Collect Pieces
               </h3>
 
               {/* Action 1: Install PWA */}
-              <div className="p-3.5 rounded-2xl bg-white border border-neutral-200 flex items-center justify-between gap-3">
+              <div className="p-4 rounded-2xl bg-white border border-[#E4E8EE] flex items-center justify-between gap-3 shadow-xs">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#0A3275] flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#003B87] flex items-center justify-center shrink-0">
                     <Download className="w-4 h-4" />
                   </div>
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <h4 className="text-xs font-semibold text-[#0D1B2A]">Save App to Screen</h4>
-                      <span className="text-[9px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.2 rounded">
+                      <h4 className="text-xs font-bold text-[#051D45]">Save App to Screen</h4>
+                      <span className="text-[9px] font-bold text-[#003B87] bg-blue-50 px-1.5 py-0.2 rounded">
                         Piece #2
                       </span>
                     </div>
-                    <p className="text-[10px] text-neutral-500">
+                    <p className="text-[11px] text-[#7E89A4] mt-0.5">
                       Quick contactless access to Table & Thyme.
                     </p>
                   </div>
@@ -598,26 +611,26 @@ export default function GourmetExperiencePage() {
                 <button
                   onClick={handleInstallApp}
                   disabled={hasInstalledPwa || collectedPieces.includes(1)}
-                  className="py-1.5 px-3 rounded-lg bg-[#0D1B2A] disabled:bg-neutral-100 disabled:text-neutral-400 text-white text-xs font-semibold shrink-0"
+                  className="py-1.5 px-3 rounded-lg bg-[#003B87] disabled:bg-[#E9ECF2] disabled:text-[#7E89A4] text-white text-xs font-semibold shrink-0"
                 >
                   {collectedPieces.includes(1) ? "Claimed" : "Install"}
                 </button>
               </div>
 
               {/* Action 2: Share Private Feedback */}
-              <div className="p-3.5 rounded-2xl bg-white border border-neutral-200 flex items-center justify-between gap-3">
+              <div className="p-4 rounded-2xl bg-white border border-[#E4E8EE] flex items-center justify-between gap-3 shadow-xs">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0">
                     <MessageSquareQuote className="w-4 h-4" />
                   </div>
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <h4 className="text-xs font-semibold text-[#0D1B2A]">Culinary Feedback</h4>
+                      <h4 className="text-xs font-bold text-[#051D45]">Culinary Feedback</h4>
                       <span className="text-[9px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded">
                         Piece #3
                       </span>
                     </div>
-                    <p className="text-[10px] text-neutral-500">
+                    <p className="text-[11px] text-[#7E89A4] mt-0.5">
                       Private suggestions directly to our head chef.
                     </p>
                   </div>
@@ -626,27 +639,27 @@ export default function GourmetExperiencePage() {
                 <button
                   onClick={() => setShowFeedbackModal(true)}
                   disabled={hasSubmittedFeedback || collectedPieces.includes(2)}
-                  className="py-1.5 px-3 rounded-lg bg-[#0D1B2A] disabled:bg-neutral-100 disabled:text-neutral-400 text-white text-xs font-semibold shrink-0"
+                  className="py-1.5 px-3 rounded-lg bg-[#003B87] disabled:bg-[#E9ECF2] disabled:text-[#7E89A4] text-white text-xs font-semibold shrink-0"
                 >
                   {collectedPieces.includes(2) ? "Reviewed" : "Review"}
                 </button>
               </div>
 
               {/* Action 3: Return Visit Verification */}
-              <div className="p-3.5 rounded-2xl bg-white border border-neutral-200 flex items-center justify-between gap-3">
+              <div className="p-4 rounded-2xl bg-white border border-[#E4E8EE] flex items-center justify-between gap-3 shadow-xs">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center shrink-0">
                     <Clock className="w-4 h-4" />
                   </div>
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <h4 className="text-xs font-semibold text-[#0D1B2A]">Return Visit Check</h4>
-                      <span className="text-[9px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.2 rounded">
+                      <h4 className="text-xs font-bold text-[#051D45]">Return Visit Check</h4>
+                      <span className="text-[9px] font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.2 rounded">
                         Piece #4
                       </span>
                     </div>
-                    <p className="text-[10px] text-neutral-500">
-                      Staff table validation on your second dining trip.
+                    <p className="text-[11px] text-[#7E89A4] mt-0.5">
+                      Table validation on your second dining trip.
                     </p>
                   </div>
                 </div>
@@ -654,7 +667,7 @@ export default function GourmetExperiencePage() {
                 <button
                   onClick={handleVerifyReturnVisit}
                   disabled={hasReturnVisitVerified || collectedPieces.includes(3)}
-                  className="py-1.5 px-3 rounded-lg bg-[#0D1B2A] disabled:bg-neutral-100 disabled:text-neutral-400 text-white text-xs font-semibold shrink-0"
+                  className="py-1.5 px-3 rounded-lg bg-[#003B87] disabled:bg-[#E9ECF2] disabled:text-[#7E89A4] text-white text-xs font-semibold shrink-0"
                 >
                   {collectedPieces.includes(3) ? "Verified" : "Verify"}
                 </button>
@@ -662,7 +675,7 @@ export default function GourmetExperiencePage() {
             </div>
 
             {feedbackToast && (
-              <div className="p-3 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-medium text-center">
+              <div className="p-3.5 rounded-2xl bg-emerald-50 text-emerald-800 text-xs font-medium text-center border border-emerald-200">
                 {feedbackToast}
               </div>
             )}
@@ -670,26 +683,26 @@ export default function GourmetExperiencePage() {
         )}
 
         {/* ======================================================== */}
-        {/* 4. GRAND LUCKY DRAW & REWARDS VIEW                       */}
+        {/* 4. GRAND LUCKY DRAW & REWARDS VIEW (THEME CONSISTENT)     */}
         {/* ======================================================== */}
         {activeTab === "draw" && (
-          <div className="p-5 space-y-4">
+          <div className="p-6 space-y-4">
             <div className="text-center pt-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-3 py-1 rounded-full">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#003B87] bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
                 Grand Connoisseur Draw
               </span>
-              <h2 className="text-xl font-bold text-[#0D1B2A] mt-2">
+              <h2 className="text-2xl font-extrabold text-[#051D45] mt-2 tracking-tight">
                 Preferred Dining Reward
               </h2>
-              <p className="text-xs text-neutral-500 mt-1 max-w-xs mx-auto">
+              <p className="text-xs text-[#7E89A4] mt-1 max-w-xs mx-auto leading-relaxed">
                 Pick your preferred prize below. Drawing guarantees high priority for your choice.
               </p>
             </div>
 
             {wonPrize ? (
               /* Reward Reveal Voucher Card */
-              <div className="p-6 rounded-3xl bg-white border border-neutral-200 shadow-xl text-center space-y-4 animate-in zoom-in-95">
-                <div className="w-14 h-14 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto">
+              <div className="p-6 rounded-3xl bg-white border border-[#E4E8EE] shadow-xl text-center space-y-4 animate-in zoom-in-95">
+                <div className="w-14 h-14 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
                   <Sparkles className="w-8 h-8" />
                 </div>
 
@@ -697,56 +710,56 @@ export default function GourmetExperiencePage() {
                   <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 bg-amber-50 px-2.5 py-1 rounded-full">
                     Prize Unlocked!
                   </span>
-                  <h3 className="text-lg font-bold text-[#0D1B2A] mt-2">
+                  <h3 className="text-lg font-bold text-[#051D45] mt-2">
                     {wonPrize.title}
                   </h3>
-                  <p className="text-xs text-neutral-500 mt-1 leading-relaxed">
+                  <p className="text-xs text-[#7E89A4] mt-1 leading-relaxed">
                     {wonPrize.description}
                   </p>
                 </div>
 
                 {/* Voucher code box */}
-                <div className="p-4 rounded-2xl bg-[#0D1B2A] text-white space-y-1.5">
-                  <span className="text-[10px] text-neutral-400 uppercase tracking-widest block font-medium">
+                <div className="p-5 rounded-2xl bg-[#003B87] text-white space-y-1.5 shadow-md">
+                  <span className="text-[10px] text-blue-200 uppercase tracking-widest block font-medium">
                     Redemption Voucher Code
                   </span>
                   <code className="text-lg font-mono font-bold tracking-widest text-amber-300 block select-all">
                     {voucherCode}
                   </code>
-                  <p className="text-[10px] text-neutral-400">
+                  <p className="text-[11px] text-blue-100">
                     Show this code to your waiter or cashier to redeem.
                   </p>
                 </div>
 
                 <button
                   onClick={() => setActiveTab("menu")}
-                  className="w-full py-3 rounded-xl bg-[#0A3275] text-white text-xs font-bold hover:bg-[#082554] transition-colors"
+                  className="w-full py-3 rounded-xl bg-[#051D45] text-white text-xs font-bold hover:bg-[#003B87] transition-colors"
                 >
                   Return to Menu
                 </button>
               </div>
             ) : !isPuzzleComplete ? (
               /* Locked state */
-              <div className="p-6 rounded-3xl bg-neutral-50 border border-neutral-200 text-center space-y-3">
-                <div className="w-12 h-12 rounded-full bg-neutral-200 text-neutral-500 flex items-center justify-center mx-auto">
+              <div className="p-6 rounded-3xl bg-white border border-[#E4E8EE] text-center space-y-3 shadow-xs">
+                <div className="w-12 h-12 rounded-full bg-[#E9ECF2] text-[#7E89A4] flex items-center justify-center mx-auto">
                   <Lock className="w-6 h-6" />
                 </div>
-                <h3 className="text-base font-bold text-[#0D1B2A]">Draw Currently Locked</h3>
-                <p className="text-xs text-neutral-500 max-w-xs mx-auto leading-relaxed">
+                <h3 className="text-base font-bold text-[#051D45]">Draw Currently Locked</h3>
+                <p className="text-xs text-[#7E89A4] max-w-xs mx-auto leading-relaxed">
                   You have collected {collectedPieces.length} of 4 crest pieces. Finish assembling the Connoisseur Jigsaw to enter the draw!
                 </p>
                 <button
                   onClick={() => setActiveTab("puzzle")}
-                  className="py-2.5 px-5 rounded-xl bg-[#0D1B2A] text-white text-xs font-bold inline-flex items-center gap-1.5"
+                  className="py-2.5 px-5 rounded-xl bg-[#003B87] text-white text-xs font-bold inline-flex items-center gap-1.5"
                 >
                   <span>Complete Puzzle</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
                 </button>
               </div>
             ) : (
               /* Active Draw Selection */
               <div className="space-y-3">
-                <div className="space-y-2">
+                <div className="space-y-2.5">
                   {MOCK_PRIZES.map((prize) => {
                     const isSelected = preferredPrizeId === prize.id;
                     return (
@@ -755,20 +768,20 @@ export default function GourmetExperiencePage() {
                         onClick={() => setPreferredPrizeId(prize.id)}
                         className={`w-full p-4 rounded-2xl border text-left transition-all flex items-center justify-between gap-3 ${
                           isSelected
-                            ? "border-[#0A3275] bg-blue-50/50 shadow-sm ring-1 ring-[#0A3275]"
-                            : "border-neutral-200 bg-white hover:bg-neutral-50"
+                            ? "border-[#003B87] bg-blue-50/50 shadow-sm ring-1 ring-[#003B87]"
+                            : "border-[#E4E8EE] bg-white hover:bg-neutral-50"
                         }`}
                       >
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-[#0D1B2A]">
+                            <span className="text-xs font-bold text-[#051D45]">
                               {prize.title}
                             </span>
                             <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded">
                               {prize.discountText}
                             </span>
                           </div>
-                          <p className="text-[11px] text-neutral-500 mt-0.5">
+                          <p className="text-[11px] text-[#7E89A4] mt-0.5">
                             {prize.description}
                           </p>
                         </div>
@@ -776,8 +789,8 @@ export default function GourmetExperiencePage() {
                         <div
                           className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
                             isSelected
-                              ? "border-[#0A3275] bg-[#0A3275] text-white"
-                              : "border-neutral-300"
+                              ? "border-[#003B87] bg-[#003B87] text-white"
+                              : "border-[#D5DAE5]"
                           }`}
                         >
                           {isSelected && <CheckCircle2 className="w-3.5 h-3.5" />}
@@ -790,7 +803,7 @@ export default function GourmetExperiencePage() {
                 <button
                   disabled={isDrawing}
                   onClick={handleExecuteDraw}
-                  className="w-full py-3.5 rounded-2xl bg-[#0A3275] hover:bg-[#082554] text-white text-xs font-bold flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 disabled:opacity-50"
+                  className="w-full py-3.5 rounded-2xl bg-[#003B87] hover:bg-[#051D45] text-white text-xs font-bold flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 disabled:opacity-50"
                 >
                   <RotateCcw className={`w-4 h-4 ${isDrawing ? "animate-spin" : ""}`} />
                   <span>{isDrawing ? "Drawing Your Reward..." : "Confirm & Execute Lucky Draw"}</span>
@@ -801,14 +814,14 @@ export default function GourmetExperiencePage() {
         )}
 
         {/* ======================================================== */}
-        {/* BOTTOM TAB NAVIGATION BAR                                */}
+        {/* BOTTOM TAB NAVIGATION (THEME CONSISTENT)                 */}
         {/* ======================================================== */}
-        <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-neutral-200">
+        <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#E4E8EE] shadow-lg">
           <div className="max-w-[430px] mx-auto grid grid-cols-4 px-2 py-2">
             <button
               onClick={() => setActiveTab("menu")}
               className={`flex flex-col items-center justify-center py-1 transition-colors ${
-                activeTab === "menu" ? "text-[#0A3275] font-bold" : "text-neutral-400 hover:text-neutral-600"
+                activeTab === "menu" ? "text-[#003B87] font-bold" : "text-[#7E89A4] hover:text-[#051D45]"
               }`}
             >
               <ShoppingBag className="w-5 h-5 mb-0.5" />
@@ -818,7 +831,7 @@ export default function GourmetExperiencePage() {
             <button
               onClick={() => setActiveTab("order")}
               className={`flex flex-col items-center justify-center py-1 transition-colors ${
-                activeTab === "order" ? "text-[#0A3275] font-bold" : "text-neutral-400 hover:text-neutral-600"
+                activeTab === "order" ? "text-[#003B87] font-bold" : "text-[#7E89A4] hover:text-[#051D45]"
               }`}
             >
               <Receipt className="w-5 h-5 mb-0.5" />
@@ -828,7 +841,7 @@ export default function GourmetExperiencePage() {
             <button
               onClick={() => setActiveTab("puzzle")}
               className={`flex flex-col items-center justify-center py-1 relative transition-colors ${
-                activeTab === "puzzle" ? "text-[#0A3275] font-bold" : "text-neutral-400 hover:text-neutral-600"
+                activeTab === "puzzle" ? "text-[#003B87] font-bold" : "text-[#7E89A4] hover:text-[#051D45]"
               }`}
             >
               <Puzzle className="w-5 h-5 mb-0.5" />
@@ -841,7 +854,7 @@ export default function GourmetExperiencePage() {
             <button
               onClick={() => setActiveTab("draw")}
               className={`flex flex-col items-center justify-center py-1 transition-colors ${
-                activeTab === "draw" ? "text-[#0A3275] font-bold" : "text-neutral-400 hover:text-neutral-600"
+                activeTab === "draw" ? "text-[#003B87] font-bold" : "text-[#7E89A4] hover:text-[#051D45]"
               }`}
             >
               <Gift className="w-5 h-5 mb-0.5" />
@@ -854,29 +867,29 @@ export default function GourmetExperiencePage() {
         {selectedItemDetail && (
           <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
             <div className="w-full max-w-[430px] bg-white rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl space-y-4 animate-in slide-in-from-bottom">
-              <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+              <div className="flex items-center justify-between border-b border-[#E4E8EE] pb-3">
                 <div>
-                  <span className="text-[10px] font-bold text-[#0A3275] uppercase tracking-widest">
+                  <span className="text-[10px] font-bold text-[#003B87] uppercase tracking-widest">
                     Table & Thyme Kitchen
                   </span>
-                  <h3 className="text-xl font-bold text-[#0D1B2A]">
+                  <h3 className="text-xl font-bold text-[#051D45]">
                     {selectedItemDetail.name}
                   </h3>
                 </div>
                 <button
                   onClick={() => setSelectedItemDetail(null)}
-                  className="w-8 h-8 rounded-full bg-neutral-100 text-neutral-500 flex items-center justify-center hover:bg-neutral-200"
+                  className="w-8 h-8 rounded-full bg-[#E9ECF2] text-[#7E89A4] flex items-center justify-center hover:bg-[#D5DAE5]"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <p className="text-xs text-neutral-600 leading-relaxed">
+              <p className="text-xs text-[#7E89A4] leading-relaxed">
                 {selectedItemDetail.description}
               </p>
 
               <div className="flex items-center justify-between pt-2">
-                <span className="text-2xl font-black text-[#0D1B2A]">
+                <span className="text-2xl font-black text-[#051D45]">
                   ₹{selectedItemDetail.price}
                 </span>
 
@@ -885,9 +898,9 @@ export default function GourmetExperiencePage() {
                     addItem(selectedItemDetail);
                     setSelectedItemDetail(null);
                   }}
-                  className="py-2.5 px-6 rounded-full bg-[#0D1B2A] hover:bg-[#1E293B] text-white text-xs font-bold flex items-center gap-2 shadow-sm transition-transform active:scale-95"
+                  className="py-2.5 px-6 rounded-full bg-[#003B87] hover:bg-[#051D45] text-white text-xs font-bold flex items-center gap-2 shadow-sm transition-transform active:scale-95"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-4 h-4 stroke-[2.5]" />
                   <span>Add to Order</span>
                 </button>
               </div>
@@ -899,23 +912,23 @@ export default function GourmetExperiencePage() {
         {showFeedbackModal && (
           <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
             <div className="w-full max-w-[430px] bg-white rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl space-y-4 animate-in slide-in-from-bottom">
-              <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+              <div className="flex items-center justify-between border-b border-[#E4E8EE] pb-3">
                 <div>
-                  <h3 className="text-sm font-bold text-[#0D1B2A]">Private Culinary Feedback</h3>
-                  <p className="text-[11px] text-neutral-500">
+                  <h3 className="text-sm font-bold text-[#051D45]">Private Culinary Feedback</h3>
+                  <p className="text-[11px] text-[#7E89A4]">
                     Awards +1 Jigsaw Crest Piece
                   </p>
                 </div>
                 <button
                   onClick={() => setShowFeedbackModal(false)}
-                  className="text-neutral-400 hover:text-neutral-600 text-xs font-semibold px-2 py-1"
+                  className="text-[#7E89A4] hover:text-[#051D45] text-xs font-semibold px-2 py-1"
                 >
                   Close
                 </button>
               </div>
 
               <div>
-                <label className="text-xs font-medium text-neutral-700 block mb-1.5">
+                <label className="text-xs font-medium text-[#051D45] block mb-1.5">
                   Culinary Experience Rating
                 </label>
                 <div className="flex gap-2">
@@ -929,7 +942,7 @@ export default function GourmetExperiencePage() {
                         className={`w-6 h-6 ${
                           s <= feedbackRating
                             ? "fill-amber-400 text-amber-400"
-                            : "text-neutral-200"
+                            : "text-[#D5DAE5]"
                         }`}
                       />
                     </button>
@@ -938,7 +951,7 @@ export default function GourmetExperiencePage() {
               </div>
 
               <div>
-                <label className="text-xs font-medium text-neutral-700 block mb-1">
+                <label className="text-xs font-medium text-[#051D45] block mb-1">
                   Your Notes to the Chef
                 </label>
                 <textarea
@@ -946,14 +959,14 @@ export default function GourmetExperiencePage() {
                   value={feedbackText}
                   onChange={(e) => setFeedbackText(e.target.value)}
                   placeholder="How was the Farmhouse Bowl or Pasta Alfredo flavor balance?"
-                  className="w-full text-xs p-3 rounded-xl border border-neutral-200 bg-neutral-50 focus:outline-none focus:border-[#0A3275]"
+                  className="w-full text-xs p-3 rounded-xl border border-[#D5DAE5] bg-[#F8F9FA] focus:outline-none focus:border-[#003B87]"
                 />
               </div>
 
               <button
                 disabled={feedbackText.trim().length === 0}
                 onClick={handleSubmitFeedback}
-                className="w-full py-3 rounded-xl bg-[#0A3275] hover:bg-[#082554] disabled:opacity-50 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-colors"
+                className="w-full py-3 rounded-xl bg-[#003B87] hover:bg-[#051D45] disabled:opacity-50 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-colors"
               >
                 <Send className="w-3.5 h-3.5" />
                 <span>Submit & Claim Jigsaw Piece</span>

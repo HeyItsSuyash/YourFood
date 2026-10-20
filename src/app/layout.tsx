@@ -1,16 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import localFont from "next/font/local";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-plus-jakarta-sans",
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const viewport: Viewport = {
@@ -19,12 +14,12 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
-  themeColor: "#BE123C",
+  themeColor: "#003b87",
 };
 
 export const metadata: Metadata = {
-  title: "L'Atelier Gourmet | Artisan Dining & Loyalty Quest",
-  description: "Artisan seasonal dining, contactless table ordering, and the collector's Connoisseur Quest rewards.",
+  title: "Table & Thyme | Fresh & Tasty Food Menu",
+  description: "Handcrafted gourmet bowls, artisan pastas, and Connoisseur Quest rewards.",
   manifest: "/manifest.json",
 };
 
@@ -36,7 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${plusJakartaSans.variable} font-sans antialiased bg-[#0e1626] text-[#0d1e38]`}
       >
         {children}
       </body>
