@@ -22,6 +22,8 @@ import {
   Receipt,
   MapPin,
   Lock,
+  Unlock,
+  Tag,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { MenuItem, MOCK_MENU, MOCK_PRIZES, PrizeOption } from "@/lib/mockData";
@@ -39,6 +41,19 @@ interface PlacedOrder {
   time: string;
 }
 
+// 9 Jigsaw Piece Definitions with Distinct Earn Actions & Clear Origins
+const PUZZLE_TILES = [
+  { id: 0, row: 0, col: 0, title: "Artisan Order Initiation", actionDesc: "Place your table order" },
+  { id: 1, row: 0, col: 1, title: "Install Fast App", actionDesc: "Save app to home screen" },
+  { id: 2, row: 0, col: 2, title: "Culinary Rating", actionDesc: "Share 5-star experience" },
+  { id: 3, row: 1, col: 0, title: "Chef Private Notes", actionDesc: "Provide feedback comments" },
+  { id: 4, row: 1, col: 1, title: "Gourmet Table Pass", actionDesc: "Scan table fast pass" },
+  { id: 5, row: 1, col: 2, title: "Sommelier Special", actionDesc: "Pair beverage with meal" },
+  { id: 6, row: 2, col: 0, title: "Loyal Return Check", actionDesc: "Qualifying return visit" },
+  { id: 7, row: 2, col: 1, title: "Patio Celebration", actionDesc: "Dine on garden terrace" },
+  { id: 8, row: 2, col: 2, title: "Grand Keystone", actionDesc: "Final piece to complete crest" },
+];
+
 export default function GourmetExperiencePage() {
   const [activeTab, setActiveTab] = useState<ActiveTab>("menu");
   const [cart, setCart] = useState<{ [id: string]: number }>({});
@@ -46,10 +61,10 @@ export default function GourmetExperiencePage() {
 
   // Flow State
   const [currentOrder, setCurrentOrder] = useState<PlacedOrder | null>(null);
-  const [collectedPieces, setCollectedPieces] = useState<number[]>([0]); // Starts with 0 (Order Initiation) or unlocked upon ordering
-  const [hasSubmittedFeedback, setHasSubmittedFeedback] = useState(false);
-  const [hasInstalledPwa, setHasInstalledPwa] = useState(false);
-  const [hasReturnVisitVerified, setHasReturnVisitVerified] = useState(false);
+  
+  // 3x3 (9 pieces) state. Starts with [0, 4] for engaging progress
+  const [collectedPieces, setCollectedPieces] = useState<number[]>([0, 4]);
+  const [isFlipped, setIsFlipped] = useState(false);
 
   // Feedback modal
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
@@ -67,31 +82,49 @@ export default function GourmetExperiencePage() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
   useEffect(() => {
-    // Restore from localStorage if present
-    const savedPieces = localStorage.getItem("tablethyme_pieces");
-    if (savedPieces) {
-      try {
-        setCollectedPieces(JSON.parse(savedPieces));
-      } catch {}
-    }
-    const savedOrder = localStorage.getItem("tablethyme_order");
-    if (savedOrder) {
-      try {
-        setCurrentOrder(JSON.parse(savedOrder));
-      } catch {}
-    }
+    // Read query params if routed from /puzzle or /draw
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get("tab") as ActiveTab;
+      if (tabParam && ["menu", "order", "puzzle", "draw"].includes(tabParam)) {
+        setActiveTab(tabParam);
+      }
 
-    const handleBeforeInstall = (e: any) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
-    window.addEventListener("beforeinstallprompt", handleBeforeInstall);
-    return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
+      const savedPieces = localStorage.getItem("tablethyme_pieces_3x3");
+      if (savedPieces) {
+        try {
+          const parsed = JSON.parse(savedPieces);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setCollectedPieces(parsed);
+          }
+        } catch {}
+      }
+
+      const savedOrder = localStorage.getItem("tablethyme_order");
+      if (savedOrder) {
+        try {
+          setCurrentOrder(JSON.parse(savedOrder));
+        } catch {}
+      }
+
+      const handleBeforeInstall = (e: any) => {
+        e.preventDefault();
+        setDeferredPrompt(e);
+      };
+      window.addEventListener("beforeinstallprompt", handleBeforeInstall);
+      return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
+    }
   }, []);
 
   function savePieces(pieces: number[]) {
     setCollectedPieces(pieces);
-    localStorage.setItem("tablethyme_pieces", JSON.stringify(pieces));
+    localStorage.setItem("tablethyme_pieces_3x3", JSON.stringify(pieces));
+    if (pieces.length === 9) {
+      setTimeout(() => {
+        setIsFlipped(true);
+        confetti({ particleCount: 80, spread: 90, origin: { y: 0.5 } });
+      }, 600);
+    }
   }
 
   // Cart operations
@@ -119,7 +152,7 @@ export default function GourmetExperiencePage() {
     const item = MOCK_MENU.find((m) => m.id === id);
     return sum + (item ? item.price * qty : 0);
   }, 0);
-  const taxAmount = Math.round(subtotalAmount * 0.05); // 5% GST
+  const taxAmount = Math.round(subtotalAmount * 0.05);
   const serviceAmount = Math.round(subtotalAmount * 0.05);
   const grandTotal = subtotalAmount + taxAmount + serviceAmount;
 
@@ -149,56 +182,53 @@ export default function GourmetExperiencePage() {
     localStorage.setItem("tablethyme_order", JSON.stringify(newOrder));
     setCart({});
 
-    // Unlock Piece 0 (Dining Order Initiation)
-    if (!collectedPieces.includes(0)) {
-      const updated = Array.from(new Set([...collectedPieces, 0]));
-      savePieces(updated);
-    }
+    // Unlock Piece 0 & Piece 5 (Beverage/Meal combo)
+    const updated = Array.from(new Set([...collectedPieces, 0, 5]));
+    savePieces(updated);
 
     setActiveTab("order");
     confetti({ particleCount: 50, spread: 70, origin: { y: 0.6 } });
   }
 
-  // Puzzle Actions
+  // Jigsaw Puzzle Unlock Rules
+  function unlockPieceById(id: number, message: string) {
+    if (!collectedPieces.includes(id)) {
+      const updated = Array.from(new Set([...collectedPieces, id]));
+      savePieces(updated);
+      setFeedbackToast(message);
+      confetti({ particleCount: 35, spread: 60, origin: { y: 0.5 } });
+      setTimeout(() => setFeedbackToast(""), 3500);
+    }
+  }
+
   function handleInstallApp() {
     if (deferredPrompt) {
       deferredPrompt.prompt();
       deferredPrompt.userChoice.then((choice: any) => {
         if (choice.outcome === "accepted") {
-          setHasInstalledPwa(true);
+          unlockPieceById(1, "Installed! Jigsaw Piece #2 Unlocked.");
         }
       });
     }
-    setHasInstalledPwa(true);
-    if (!collectedPieces.includes(1)) {
-      const updated = Array.from(new Set([...collectedPieces, 1]));
-      savePieces(updated);
-      confetti({ particleCount: 30, spread: 50, origin: { y: 0.5 } });
-    }
+    unlockPieceById(1, "App Saved to Screen! Piece #2 Unlocked.");
   }
 
   function handleSubmitFeedback() {
     if (!feedbackText.trim()) return;
-    setHasSubmittedFeedback(true);
     setShowFeedbackModal(false);
-    setFeedbackToast("Thank you for your thoughts! Jigsaw Piece unlocked.");
-
-    // Rule: Feedback gives piece 2
-    const updated = [...collectedPieces];
-    if (!updated.includes(2)) updated.push(2);
+    // Unlocks piece 2 (Culinary Rating) & piece 3 (Chef Notes)
+    const updated = Array.from(new Set([...collectedPieces, 2, 3]));
     savePieces(updated);
-
-    confetti({ particleCount: 40, spread: 60, origin: { y: 0.6 } });
+    setFeedbackToast("Feedback received! 2 Jigsaw Pieces Unlocked.");
+    confetti({ particleCount: 50, spread: 70, origin: { y: 0.5 } });
     setTimeout(() => setFeedbackToast(""), 4000);
   }
 
-  function handleVerifyReturnVisit() {
-    setHasReturnVisitVerified(true);
-    if (!collectedPieces.includes(3)) {
-      const updated = Array.from(new Set([...collectedPieces, 3]));
-      savePieces(updated);
-      confetti({ particleCount: 60, spread: 80, origin: { y: 0.5 } });
-    }
+  function handleUnlockRemainingAll() {
+    const all = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+    savePieces(all);
+    setFeedbackToast("All 9 Pieces assembled! Card flipping to reveal exclusive offers...");
+    confetti({ particleCount: 100, spread: 100, origin: { y: 0.5 } });
   }
 
   // Lucky Draw Execution
@@ -213,21 +243,11 @@ export default function GourmetExperiencePage() {
     }, 1200);
   }
 
-  const isPuzzleComplete = collectedPieces.length >= 4;
-
-  const puzzleSegments = [
-    { index: 0, title: "The Royal Fleur", rule: "Dining Order Initiation", icon: "⚜️" },
-    { index: 1, title: "The Sovereign Key", rule: "Install Web App (+1 Piece)", icon: "🗝️" },
-    { index: 2, title: "The Connoisseur Quill", rule: "Private Culinary Feedback (+1 Piece)", icon: "🪶" },
-    { index: 3, title: "The Heritage Seal", rule: "Staff Verified Return Visit (+1 Piece)", icon: "👑" },
-  ];
+  const isPuzzleComplete = collectedPieces.length >= 9;
 
   return (
     <div className="relative min-h-screen bg-[#F0F2F5] text-[#0A192F] flex flex-col items-center font-sans">
-      {/* 
-        Mobile Device Screen Container:
-        Seamless, flat background (#F8F9FA) exactly like the image with NO white card overlay!
-      */}
+      {/* Mobile Shell */}
       <div className="w-full max-w-[430px] min-h-screen bg-[#F8F9FA] relative flex flex-col pb-24 overflow-x-hidden shadow-2xl">
         
         {/* ======================================================== */}
@@ -260,20 +280,14 @@ export default function GourmetExperiencePage() {
               </div>
             </div>
 
-            {/* 
-              FLAT SEAMLESS MENU LIST:
-              No white card, no border radius cutoff, no card elevation!
-              Flows directly on the background with the exact same typography & colors as in the image.
-            */}
+            {/* Flat Menu List: No White Card, Exact Font and Colors */}
             <div className="px-7 pt-4 pb-20 bg-[#F8F9FA]">
-              {/* Section Heading: "Food" matching the image font size & color */}
               <div className="mb-5">
                 <h2 className="text-[34px] font-extrabold text-[#051D45] tracking-tight leading-none">
                   Food
                 </h2>
               </div>
 
-              {/* Menu Items List matching exact layout & dividers */}
               <div className="divide-y divide-[#E4E8EE]">
                 {MOCK_MENU.map((item) => {
                   const qty = cart[item.id] || 0;
@@ -282,7 +296,6 @@ export default function GourmetExperiencePage() {
                       key={item.id}
                       className="py-5 flex items-start justify-between gap-4 group transition-colors"
                     >
-                      {/* Left: Dish Title & Description */}
                       <div
                         className="flex-1 cursor-pointer pr-2"
                         onClick={() => setSelectedItemDetail(item)}
@@ -295,7 +308,6 @@ export default function GourmetExperiencePage() {
                         </p>
                       </div>
 
-                      {/* Right: Price & Chevron > & Add Controls */}
                       <div className="flex flex-col items-end shrink-0 pt-0.5">
                         <div
                           className="flex items-center gap-1.5 cursor-pointer"
@@ -304,11 +316,9 @@ export default function GourmetExperiencePage() {
                           <span className="text-[17px] font-bold text-[#051D45] tracking-tight">
                             ₹{item.price}
                           </span>
-                          {/* Exact Chevron Arrow from Image */}
                           <ChevronRight className="w-4 h-4 text-[#051D45] stroke-[2.5] group-hover:translate-x-0.5 transition-transform" />
                         </div>
 
-                        {/* Interactive Add to Order Button */}
                         <div className="mt-2.5">
                           {qty === 0 ? (
                             <button
@@ -345,7 +355,7 @@ export default function GourmetExperiencePage() {
               </div>
             </div>
 
-            {/* Floating Order Summary Drawer */}
+            {/* Floating Order Drawer */}
             {totalCartCount > 0 && (
               <div className="fixed bottom-20 left-0 right-0 z-30 max-w-[430px] mx-auto px-5">
                 <div className="p-4 rounded-2xl bg-[#003B87] text-white shadow-2xl flex items-center justify-between gap-4 border border-white/10 animate-in slide-in-from-bottom-2">
@@ -377,11 +387,10 @@ export default function GourmetExperiencePage() {
         )}
 
         {/* ======================================================== */}
-        {/* 2. ORDER CONFIRMATION VIEW (THEME CONSISTENT)             */}
+        {/* 2. ORDER CONFIRMATION VIEW                               */}
         {/* ======================================================== */}
         {activeTab === "order" && (
           <div className="p-6 space-y-4">
-            {/* Header matching royal blue brand */}
             <div className="flex items-center justify-between pb-3 border-b border-[#E4E8EE]">
               <div>
                 <span className="text-[11px] font-bold uppercase tracking-wider text-[#003B87]">
@@ -394,7 +403,6 @@ export default function GourmetExperiencePage() {
               </span>
             </div>
 
-            {/* Exact Required Delivery Message */}
             <div className="p-6 rounded-3xl bg-white border border-[#E4E8EE] shadow-sm text-center flex flex-col items-center">
               <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3">
                 <CheckCircle2 className="w-8 h-8" />
@@ -431,20 +439,20 @@ export default function GourmetExperiencePage() {
                     <Puzzle className="w-4 h-4" />
                   </span>
                   <span className="text-xs font-bold uppercase tracking-wider text-amber-300">
-                    Connoisseur Crest
+                    Connoisseur Crest (3x3 Jigsaw)
                   </span>
                 </div>
                 <span className="text-[11px] text-blue-100 font-medium">
-                  {collectedPieces.length}/4 Assembled
+                  {collectedPieces.length}/9 Pieces
                 </span>
               </div>
 
               <div>
                 <h3 className="text-sm font-semibold text-white">
-                  Jigsaw Piece #1 Unlocked!
+                  Jigsaw Pieces Unlocked!
                 </h3>
                 <p className="text-xs text-blue-100 mt-1 leading-relaxed">
-                  Your artisan dining order unlocked the Royal Fleur piece. Complete all 4 pieces to enter the Grand Lucky Draw.
+                  Your artisan dining order unlocked crest pieces. Complete all 9 pieces to flip the card and reveal the exclusive offers.
                 </p>
               </div>
 
@@ -452,12 +460,12 @@ export default function GourmetExperiencePage() {
                 onClick={() => setActiveTab("puzzle")}
                 className="w-full py-2.5 px-4 rounded-xl bg-white text-[#003B87] hover:bg-neutral-100 text-xs font-bold flex items-center justify-center gap-2 transition-transform active:scale-95"
               >
-                <span>View Jigsaw Puzzle Quest</span>
+                <span>View 3x3 Jigsaw Puzzle</span>
                 <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
               </button>
             </div>
 
-            {/* Order Items Receipt */}
+            {/* Receipt Summary */}
             <div className="p-5 rounded-3xl bg-white border border-[#E4E8EE] space-y-3">
               <div className="flex items-center gap-2 text-xs font-bold text-[#051D45] uppercase tracking-wider border-b border-[#E4E8EE] pb-2.5">
                 <Receipt className="w-4 h-4 text-[#7E89A4]" />
@@ -503,93 +511,186 @@ export default function GourmetExperiencePage() {
         )}
 
         {/* ======================================================== */}
-        {/* 3. JIGSAW PUZZLE QUEST VIEW (THEME CONSISTENT)           */}
+        {/* 3. 3x3 JIGSAW PUZZLE WITH CARD FLIP & LOGO REVEAL        */}
         {/* ======================================================== */}
         {activeTab === "puzzle" && (
           <div className="p-6 space-y-4">
-            {/* Header */}
             <div className="text-center pt-2">
               <span className="text-[11px] font-bold uppercase tracking-wider text-[#003B87] bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
-                Loyalty Crest Quest
+                Gourmet Crest Quest
               </span>
               <h2 className="text-2xl font-extrabold text-[#051D45] mt-2 tracking-tight">
-                The Connoisseur Jigsaw
+                3x3 Jigsaw Puzzle
               </h2>
               <p className="text-xs text-[#7E89A4] mt-1 max-w-xs mx-auto leading-relaxed">
-                Assemble all 4 authentic crest pieces to unlock the Grand Lucky Draw.
+                Assemble all 9 jigsaw pieces to reveal the Table & Thyme crest and flip the card for exclusive dining offers!
               </p>
             </div>
 
-            {/* Completed Banner */}
-            {isPuzzleComplete && (
-              <div className="p-5 rounded-3xl bg-gradient-to-r from-amber-500 to-amber-600 text-white text-center space-y-2 animate-in zoom-in-95 shadow-md">
-                <div className="flex items-center justify-center gap-1.5 font-bold text-xs uppercase tracking-wider">
-                  <Sparkles className="w-4 h-4" />
-                  <span>All 4 Pieces Collected!</span>
-                </div>
-                <p className="text-xs text-amber-100">
-                  Your crest is whole. Proceed to select your guaranteed dining reward.
-                </p>
-                <button
-                  onClick={() => setActiveTab("draw")}
-                  className="py-2 px-5 rounded-xl bg-white text-[#051D45] font-bold text-xs shadow-md inline-flex items-center gap-1.5 active:scale-95 transition-transform"
-                >
-                  <Gift className="w-4 h-4 text-amber-600" />
-                  <span>Open Lucky Draw</span>
-                  <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
-                </button>
-              </div>
-            )}
+            {/* Progress Count */}
+            <div className="flex items-center justify-between px-2 text-xs font-semibold text-[#051D45]">
+              <span>Crest Assembly:</span>
+              <span className="text-[#003B87] font-bold">
+                {collectedPieces.length} of 9 Pieces Unlocked
+              </span>
+            </div>
 
-            {/* 4-Piece Interactive Jigsaw Matrix */}
-            <div className="p-5 rounded-3xl bg-white border border-[#E4E8EE] shadow-sm">
-              <div className="grid grid-cols-2 gap-3 max-w-[270px] mx-auto">
-                {puzzleSegments.map((segment) => {
-                  const isCollected = collectedPieces.includes(segment.index);
-                  return (
-                    <div
-                      key={segment.index}
-                      className={`relative aspect-square rounded-2xl border-2 flex flex-col items-center justify-center p-3 text-center transition-all ${
-                        isCollected
-                          ? "border-[#003B87] bg-blue-50/40 text-[#051D45] shadow-xs scale-[1.02]"
-                          : "border-dashed border-[#D5DAE5] bg-[#F8F9FA] text-[#7E89A4]"
-                      }`}
-                    >
-                      {isCollected ? (
-                        <>
-                          <span className="text-3xl mb-1">{segment.icon}</span>
-                          <span className="text-[11px] font-bold tracking-tight">
-                            {segment.title}
-                          </span>
-                          <span className="text-[9px] text-[#003B87] font-semibold mt-0.5">
-                            Piece #{segment.index + 1}
-                          </span>
-                          <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-[#003B87] text-white flex items-center justify-center">
-                            <CheckCircle2 className="w-3 h-3" />
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <Lock className="w-5 h-5 text-[#B0B9C9] mb-1" />
-                          <span className="text-[10px] font-medium text-[#7E89A4]">
-                            Piece #{segment.index + 1}
-                          </span>
-                          <span className="text-[9px] text-[#B0B9C9] mt-0.5">Locked</span>
-                        </>
-                      )}
+            {/* 
+              3D FLIP CONTAINER:
+              - Front side: 3x3 interlocking puzzle revealing crest-logo.png
+              - Back side: Grand Offers Card revealed upon completion!
+            */}
+            <div className="perspective-1000 w-full min-h-[350px]">
+              <div
+                className={`relative w-full rounded-3xl transition-transform duration-700 transform-style-3d ${
+                  isFlipped ? "rotate-y-180" : ""
+                }`}
+              >
+                {/* ---------------- FRONT: 3x3 JIGSAW PUZZLE ---------------- */}
+                <div className="w-full bg-white rounded-3xl p-5 border border-[#E4E8EE] shadow-md backface-hidden">
+                  <div className="relative w-full aspect-square rounded-2xl overflow-hidden bg-[#0A192F] border-2 border-[#051D45] shadow-inner">
+                    {/* The Hidden Image Logo Behind the Puzzle */}
+                    <div className="absolute inset-0 z-0">
+                      <Image
+                        src="/crest-logo.png"
+                        alt="Table & Thyme Gourmet Crest"
+                        fill
+                        className="object-cover"
+                        priority
+                      />
+                      {/* Dark overlay with Table & Thyme Watermark */}
+                      <div className="absolute inset-0 bg-radial from-transparent to-black/40 pointer-events-none" />
                     </div>
-                  );
-                })}
+
+                    {/* 3x3 Grid Overlay with Interlocking Puzzle Borders */}
+                    <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 z-10">
+                      {PUZZLE_TILES.map((tile) => {
+                        const isUnlocked = collectedPieces.includes(tile.id);
+                        return (
+                          <div
+                            key={tile.id}
+                            className={`relative border border-[#051D45]/40 flex items-center justify-center transition-all duration-500 ${
+                              isUnlocked
+                                ? "bg-transparent hover:bg-white/10"
+                                : "bg-[#051D45] hover:bg-[#08275C]"
+                            }`}
+                          >
+                            {/* Interlocking Puzzle Tabs using SVG overlay */}
+                            <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-40">
+                              <line x1="0" y1="0" x2="100%" y2="0" stroke="#FFFFFF" strokeWidth="1" />
+                              <line x1="0" y1="0" x2="0" y2="100%" stroke="#FFFFFF" strokeWidth="1" />
+                            </svg>
+
+                            {!isUnlocked ? (
+                              <div className="flex flex-col items-center justify-center p-2 text-center select-none">
+                                <Lock className="w-4 h-4 text-blue-200 mb-1" />
+                                <span className="text-[10px] font-bold text-white tracking-wider">
+                                  #{tile.id + 1}
+                                </span>
+                              </div>
+                            ) : (
+                              <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-[#003B87] text-white flex items-center justify-center shadow-xs">
+                                <CheckCircle2 className="w-3 h-3 stroke-[2.5]" />
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Puzzle Controls */}
+                  <div className="mt-4 flex items-center justify-between text-xs">
+                    <span className="text-[#7E89A4]">
+                      {isPuzzleComplete ? "All pieces gathered!" : "Collect remaining pieces below"}
+                    </span>
+                    {isPuzzleComplete && (
+                      <button
+                        onClick={() => setIsFlipped(true)}
+                        className="py-1 px-3 rounded-lg bg-[#003B87] text-white font-bold text-[11px] shadow-xs hover:bg-[#051D45]"
+                      >
+                        Flip to Offers ↷
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* ---------------- BACK: REVEALED OFFERS CARD ---------------- */}
+                <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-[#003B87] via-[#051D45] to-[#0A192F] text-white rounded-3xl p-6 border border-white/20 shadow-2xl backface-hidden rotate-y-180 flex flex-col justify-between">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-amber-300 bg-white/10 px-2.5 py-0.5 rounded-full">
+                        Crest Complete • Card Flipped
+                      </span>
+                      <button
+                        onClick={() => setIsFlipped(false)}
+                        className="text-xs text-blue-200 hover:text-white"
+                      >
+                        ↶ View Crest
+                      </button>
+                    </div>
+
+                    <h3 className="text-xl font-extrabold text-white tracking-tight pt-1">
+                      Exclusive Gourmet Offers
+                    </h3>
+                    <p className="text-xs text-blue-100 leading-relaxed">
+                      Congratulations! By assembling all 9 pieces, you have unlocked our private tier dining vouchers:
+                    </p>
+
+                    <div className="space-y-2 pt-2">
+                      <div className="p-3 rounded-xl bg-white/10 border border-white/10 flex items-center justify-between">
+                        <div>
+                          <div className="text-xs font-bold text-white">100% Free Artisan Dessert</div>
+                          <div className="text-[10px] text-blue-200">Tahitian Vanilla Soufflé or Chocolate Agnolotti</div>
+                        </div>
+                        <span className="text-[10px] font-bold text-amber-300 bg-amber-400/20 px-2 py-0.5 rounded">
+                          FREE
+                        </span>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-white/10 border border-white/10 flex items-center justify-between">
+                        <div>
+                          <div className="text-xs font-bold text-white">25% Off Entire Table Check</div>
+                          <div className="text-[10px] text-blue-200">Valid on any dinner or terrace reservation</div>
+                        </div>
+                        <span className="text-[10px] font-bold text-amber-300 bg-amber-400/20 px-2 py-0.5 rounded">
+                          25% OFF
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-3">
+                    <button
+                      onClick={() => setActiveTab("draw")}
+                      className="w-full py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-[#051D45] text-xs font-bold flex items-center justify-center gap-2 shadow-lg transition-transform active:scale-95"
+                    >
+                      <Gift className="w-4 h-4" />
+                      <span>Select Your Reward in Lucky Draw</span>
+                      <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Actions to Collect Remaining Pieces */}
-            <div className="space-y-2.5">
-              <h3 className="text-xs font-bold text-[#051D45] px-1 uppercase tracking-wider">
-                How to Collect Pieces
-              </h3>
+            {/* Actions to Collect Pieces */}
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center justify-between px-1">
+                <h3 className="text-xs font-bold text-[#051D45] uppercase tracking-wider">
+                  How to Unlock Pieces
+                </h3>
+                {!isPuzzleComplete && (
+                  <button
+                    onClick={handleUnlockRemainingAll}
+                    className="text-[11px] font-semibold text-[#003B87] hover:underline"
+                  >
+                    Quick Unlock All Pieces
+                  </button>
+                )}
+              </div>
 
-              {/* Action 1: Install PWA */}
+              {/* Action 1: Install App */}
               <div className="p-4 rounded-2xl bg-white border border-[#E4E8EE] flex items-center justify-between gap-3 shadow-xs">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#003B87] flex items-center justify-center shrink-0">
@@ -610,14 +711,14 @@ export default function GourmetExperiencePage() {
 
                 <button
                   onClick={handleInstallApp}
-                  disabled={hasInstalledPwa || collectedPieces.includes(1)}
+                  disabled={collectedPieces.includes(1)}
                   className="py-1.5 px-3 rounded-lg bg-[#003B87] disabled:bg-[#E9ECF2] disabled:text-[#7E89A4] text-white text-xs font-semibold shrink-0"
                 >
                   {collectedPieces.includes(1) ? "Claimed" : "Install"}
                 </button>
               </div>
 
-              {/* Action 2: Share Private Feedback */}
+              {/* Action 2: Share Feedback */}
               <div className="p-4 rounded-2xl bg-white border border-[#E4E8EE] flex items-center justify-between gap-3 shadow-xs">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0">
@@ -625,27 +726,27 @@ export default function GourmetExperiencePage() {
                   </div>
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <h4 className="text-xs font-bold text-[#051D45]">Culinary Feedback</h4>
+                      <h4 className="text-xs font-bold text-[#051D45]">Culinary Notes & Rating</h4>
                       <span className="text-[9px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded">
-                        Piece #3
+                        Pieces #3 & #4
                       </span>
                     </div>
                     <p className="text-[11px] text-[#7E89A4] mt-0.5">
-                      Private suggestions directly to our head chef.
+                      Share your thoughts on the Farmhouse Bowl.
                     </p>
                   </div>
                 </div>
 
                 <button
                   onClick={() => setShowFeedbackModal(true)}
-                  disabled={hasSubmittedFeedback || collectedPieces.includes(2)}
+                  disabled={collectedPieces.includes(2) && collectedPieces.includes(3)}
                   className="py-1.5 px-3 rounded-lg bg-[#003B87] disabled:bg-[#E9ECF2] disabled:text-[#7E89A4] text-white text-xs font-semibold shrink-0"
                 >
                   {collectedPieces.includes(2) ? "Reviewed" : "Review"}
                 </button>
               </div>
 
-              {/* Action 3: Return Visit Verification */}
+              {/* Action 3: Table Dining & Terrace Actions */}
               <div className="p-4 rounded-2xl bg-white border border-[#E4E8EE] flex items-center justify-between gap-3 shadow-xs">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center shrink-0">
@@ -653,23 +754,23 @@ export default function GourmetExperiencePage() {
                   </div>
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <h4 className="text-xs font-bold text-[#051D45]">Return Visit Check</h4>
+                      <h4 className="text-xs font-bold text-[#051D45]">Qualifying Return Visit</h4>
                       <span className="text-[9px] font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.2 rounded">
-                        Piece #4
+                        Pieces #7, #8, #9
                       </span>
                     </div>
                     <p className="text-[11px] text-[#7E89A4] mt-0.5">
-                      Table validation on your second dining trip.
+                      Terrace table check & sommelier pairing.
                     </p>
                   </div>
                 </div>
 
                 <button
-                  onClick={handleVerifyReturnVisit}
-                  disabled={hasReturnVisitVerified || collectedPieces.includes(3)}
+                  onClick={() => unlockPieceById(6, "Return visit recorded! Piece #7 Unlocked.")}
+                  disabled={collectedPieces.includes(6)}
                   className="py-1.5 px-3 rounded-lg bg-[#003B87] disabled:bg-[#E9ECF2] disabled:text-[#7E89A4] text-white text-xs font-semibold shrink-0"
                 >
-                  {collectedPieces.includes(3) ? "Verified" : "Verify"}
+                  {collectedPieces.includes(6) ? "Verified" : "Verify"}
                 </button>
               </div>
             </div>
@@ -683,7 +784,7 @@ export default function GourmetExperiencePage() {
         )}
 
         {/* ======================================================== */}
-        {/* 4. GRAND LUCKY DRAW & REWARDS VIEW (THEME CONSISTENT)     */}
+        {/* 4. GRAND LUCKY DRAW VIEW                                 */}
         {/* ======================================================== */}
         {activeTab === "draw" && (
           <div className="p-6 space-y-4">
@@ -700,7 +801,6 @@ export default function GourmetExperiencePage() {
             </div>
 
             {wonPrize ? (
-              /* Reward Reveal Voucher Card */
               <div className="p-6 rounded-3xl bg-white border border-[#E4E8EE] shadow-xl text-center space-y-4 animate-in zoom-in-95">
                 <div className="w-14 h-14 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
                   <Sparkles className="w-8 h-8" />
@@ -718,7 +818,6 @@ export default function GourmetExperiencePage() {
                   </p>
                 </div>
 
-                {/* Voucher code box */}
                 <div className="p-5 rounded-2xl bg-[#003B87] text-white space-y-1.5 shadow-md">
                   <span className="text-[10px] text-blue-200 uppercase tracking-widest block font-medium">
                     Redemption Voucher Code
@@ -739,25 +838,23 @@ export default function GourmetExperiencePage() {
                 </button>
               </div>
             ) : !isPuzzleComplete ? (
-              /* Locked state */
               <div className="p-6 rounded-3xl bg-white border border-[#E4E8EE] text-center space-y-3 shadow-xs">
                 <div className="w-12 h-12 rounded-full bg-[#E9ECF2] text-[#7E89A4] flex items-center justify-center mx-auto">
                   <Lock className="w-6 h-6" />
                 </div>
                 <h3 className="text-base font-bold text-[#051D45]">Draw Currently Locked</h3>
                 <p className="text-xs text-[#7E89A4] max-w-xs mx-auto leading-relaxed">
-                  You have collected {collectedPieces.length} of 4 crest pieces. Finish assembling the Connoisseur Jigsaw to enter the draw!
+                  You have collected {collectedPieces.length} of 9 crest pieces. Finish assembling the 3x3 Connoisseur Jigsaw to enter the draw!
                 </p>
                 <button
                   onClick={() => setActiveTab("puzzle")}
                   className="py-2.5 px-5 rounded-xl bg-[#003B87] text-white text-xs font-bold inline-flex items-center gap-1.5"
                 >
-                  <span>Complete Puzzle</span>
+                  <span>Complete 3x3 Puzzle</span>
                   <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
                 </button>
               </div>
             ) : (
-              /* Active Draw Selection */
               <div className="space-y-3">
                 <div className="space-y-2.5">
                   {MOCK_PRIZES.map((prize) => {
@@ -814,7 +911,7 @@ export default function GourmetExperiencePage() {
         )}
 
         {/* ======================================================== */}
-        {/* BOTTOM TAB NAVIGATION (THEME CONSISTENT)                 */}
+        {/* BOTTOM TAB BAR                                           */}
         {/* ======================================================== */}
         <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#E4E8EE] shadow-lg">
           <div className="max-w-[430px] mx-auto grid grid-cols-4 px-2 py-2">
@@ -845,9 +942,9 @@ export default function GourmetExperiencePage() {
               }`}
             >
               <Puzzle className="w-5 h-5 mb-0.5" />
-              <span className="text-[10px]">Jigsaw</span>
+              <span className="text-[10px]">3x3 Jigsaw</span>
               {collectedPieces.length > 0 && (
-                <span className="absolute top-1 right-5 w-2 h-2 rounded-full bg-amber-500" />
+                <span className="absolute top-1 right-4 w-2 h-2 rounded-full bg-amber-500" />
               )}
             </button>
 
@@ -858,7 +955,7 @@ export default function GourmetExperiencePage() {
               }`}
             >
               <Gift className="w-5 h-5 mb-0.5" />
-              <span className="text-[10px]">Rewards</span>
+              <span className="text-[10px]">Offers</span>
             </button>
           </div>
         </nav>
@@ -916,7 +1013,7 @@ export default function GourmetExperiencePage() {
                 <div>
                   <h3 className="text-sm font-bold text-[#051D45]">Private Culinary Feedback</h3>
                   <p className="text-[11px] text-[#7E89A4]">
-                    Awards +1 Jigsaw Crest Piece
+                    Awards +2 Jigsaw Puzzle Pieces
                   </p>
                 </div>
                 <button
@@ -969,7 +1066,7 @@ export default function GourmetExperiencePage() {
                 className="w-full py-3 rounded-xl bg-[#003B87] hover:bg-[#051D45] disabled:opacity-50 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-colors"
               >
                 <Send className="w-3.5 h-3.5" />
-                <span>Submit & Claim Jigsaw Piece</span>
+                <span>Submit & Claim 2 Pieces</span>
               </button>
             </div>
           </div>

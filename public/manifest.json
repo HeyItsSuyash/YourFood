@@ -1,11 +1,11 @@
 {
-  "name": "YourFood - Artisan Dining & Loyalty",
-  "short_name": "YourFood",
-  "description": "Artisan dining, contactless ordering, and collector quest rewards",
-  "start_url": "/demo?installed=true",
+  "name": "Table & Thyme - Fresh & Tasty Food Menu",
+  "short_name": "Table & Thyme",
+  "description": "Handcrafted gourmet dining, instant table ordering, and collector quest rewards",
+  "start_url": "/",
   "display": "standalone",
-  "background_color": "#FAF9F6",
-  "theme_color": "#BE123C",
+  "background_color": "#F8F9FA",
+  "theme_color": "#003B87",
   "orientation": "portrait-primary",
   "icons": [
     {
