@@ -39,18 +39,100 @@ interface PlacedOrder {
   time: string;
 }
 
-// 9 Jigsaw Piece Definitions with SVG interlocking puzzle paths
-// tab: 1 = outward knob, -1 = inward hole, 0 = flat border
+// 9 Jigsaw Piece Definitions with random, complementary interlocking SVG puzzle paths
+// Designed for a unified 300x300 coordinate space where each tile (row, col) has 
+// interlocking knobs (+bulb) and holes (-indent) matching adjacent pieces with zero gaps.
 const PUZZLE_TILES = [
-  { id: 0, row: 0, col: 0, title: "Artisan Order", top: 0, right: 1, bottom: 1, left: 0 },
-  { id: 1, row: 0, col: 1, title: "Install Fast Pass", top: 0, right: -1, bottom: 1, left: -1 },
-  { id: 2, row: 0, col: 2, title: "Culinary Rating", top: 0, right: 0, bottom: -1, left: 1 },
-  { id: 3, row: 1, col: 0, title: "Chef Private Notes", top: -1, right: 1, bottom: 1, left: 0 },
-  { id: 4, row: 1, col: 1, title: "Gourmet Table Pass", top: -1, right: 1, bottom: -1, left: -1 },
-  { id: 5, row: 1, col: 2, title: "Sommelier Special", top: 1, right: 0, bottom: 1, left: -1 },
-  { id: 6, row: 2, col: 0, title: "Loyal Return Check", top: -1, right: -1, bottom: 0, left: 0 },
-  { id: 7, row: 2, col: 1, title: "Patio Celebration", top: 1, right: 1, bottom: 0, left: 1 },
-  { id: 8, row: 2, col: 2, title: "Grand Keystone", top: -1, right: 0, bottom: 0, left: -1 },
+  {
+    id: 0,
+    row: 0,
+    col: 0,
+    title: "Artisan Order",
+    cx: 50,
+    cy: 50,
+    // Right knob into piece 1, Bottom hole from piece 3
+    path: "M 0 0 L 100 0 L 100 38 C 105 39, 112 32, 118 35 C 122 42, 122 58, 118 65 C 112 68, 105 61, 100 62 L 100 100 L 62 100 C 61 95, 68 88, 65 82 C 58 78, 42 78, 35 82 C 32 88, 39 95, 38 100 L 0 100 L 0 0 Z",
+  },
+  {
+    id: 1,
+    row: 0,
+    col: 1,
+    title: "Install Fast Pass",
+    cx: 150,
+    cy: 50,
+    // Left hole receiving piece 0 knob, Right knob inward into piece 1, Bottom knob into piece 4
+    path: "M 100 0 L 200 0 L 200 38 C 195 39, 188 32, 182 35 C 178 42, 178 58, 182 65 C 188 68, 195 61, 200 62 L 200 100 L 162 100 C 161 105, 168 112, 165 118 C 158 122, 142 122, 135 118 C 132 112, 139 105, 138 100 L 100 100 L 100 62 C 105 61, 112 68, 118 65 C 122 58, 122 42, 118 35 C 112 32, 105 39, 100 38 L 100 0 Z",
+  },
+  {
+    id: 2,
+    row: 0,
+    col: 2,
+    title: "Culinary Rating",
+    cx: 250,
+    cy: 50,
+    // Left knob extending into piece 1 hole, Bottom hole from piece 5
+    path: "M 200 0 L 300 0 L 300 100 L 262 100 C 261 95, 268 88, 265 82 C 258 78, 242 78, 235 82 C 232 88, 239 95, 238 100 L 200 100 L 200 62 C 195 61, 188 68, 182 65 C 178 58, 178 42, 182 35 C 188 32, 195 39, 200 38 L 200 0 Z",
+  },
+  {
+    id: 3,
+    row: 1,
+    col: 0,
+    title: "Chef Private Notes",
+    cx: 50,
+    cy: 150,
+    // Top knob into piece 0 hole, Right knob into piece 4, Bottom knob into piece 6
+    path: "M 0 100 L 38 100 C 39 95, 32 88, 35 82 C 42 78, 58 78, 65 82 C 68 88, 61 95, 62 100 L 100 100 L 100 138 C 95 139, 88 132, 82 135 C 78 142, 78 158, 82 165 C 88 168, 95 161, 100 162 L 100 200 L 62 200 C 61 205, 68 212, 65 218 C 58 222, 42 222, 35 218 C 32 212, 39 205, 38 200 L 0 200 L 0 100 Z",
+  },
+  {
+    id: 4,
+    row: 1,
+    col: 1,
+    title: "Gourmet Table Pass",
+    cx: 150,
+    cy: 150,
+    // Top hole receiving piece 1 knob, Left hole receiving piece 3 knob, Right knob into piece 5, Bottom hole
+    path: "M 100 100 L 138 100 C 139 105, 132 112, 135 118 C 142 122, 158 122, 165 118 C 168 112, 161 105, 162 100 L 200 100 L 200 138 C 205 139, 212 132, 218 135 C 222 142, 222 158, 218 165 C 212 168, 205 161, 200 162 L 200 200 L 162 200 C 161 195, 168 188, 165 182 C 158 178, 142 178, 135 182 C 132 188, 139 195, 138 200 L 100 200 L 100 162 C 95 161, 88 168, 82 165 C 78 158, 78 142, 82 135 C 88 132, 95 139, 100 138 L 100 100 Z",
+  },
+  {
+    id: 5,
+    row: 1,
+    col: 2,
+    title: "Sommelier Special",
+    cx: 250,
+    cy: 150,
+    // Top knob into piece 2 hole, Left hole receiving piece 4 knob, Bottom knob into piece 8
+    path: "M 200 100 L 238 100 C 239 95, 232 88, 235 82 C 242 78, 258 78, 265 82 C 268 88, 261 95, 262 100 L 300 100 L 300 200 L 262 200 C 261 205, 268 212, 265 218 C 258 222, 242 222, 235 218 C 232 212, 239 205, 238 200 L 200 200 L 200 162 C 205 161, 212 168, 218 165 C 222 158, 222 142, 218 135 C 212 132, 205 139, 200 138 L 200 100 Z",
+  },
+  {
+    id: 6,
+    row: 2,
+    col: 0,
+    title: "Loyal Return Check",
+    cx: 50,
+    cy: 250,
+    // Top hole receiving piece 3 knob, Right knob into piece 7
+    path: "M 0 200 L 38 200 C 39 205, 32 212, 35 218 C 42 222, 58 222, 65 218 C 68 212, 61 205, 62 200 L 100 200 L 100 238 C 105 239, 112 232, 118 235 C 122 242, 122 258, 118 265 C 112 268, 105 261, 100 262 L 100 300 L 0 300 L 0 200 Z",
+  },
+  {
+    id: 7,
+    row: 2,
+    col: 1,
+    title: "Patio Celebration",
+    cx: 150,
+    cy: 250,
+    // Top knob into piece 4 hole, Left hole receiving piece 6 knob, Right knob into piece 8
+    path: "M 100 200 L 138 200 C 139 195, 132 188, 135 182 C 142 178, 158 178, 165 182 C 168 188, 161 195, 162 200 L 200 200 L 200 238 C 195 239, 188 232, 182 235 C 178 242, 178 258, 182 265 C 188 268, 195 261, 200 262 L 200 300 L 100 300 L 100 262 C 105 261, 112 268, 118 265 C 122 258, 122 242, 118 235 C 112 232, 105 239, 100 238 L 100 200 Z",
+  },
+  {
+    id: 8,
+    row: 2,
+    col: 2,
+    title: "Grand Keystone",
+    cx: 250,
+    cy: 250,
+    // Top hole receiving piece 5 knob, Left hole receiving piece 7 knob
+    path: "M 200 200 L 238 200 C 239 205, 232 212, 235 218 C 242 222, 258 222, 265 218 C 268 212, 261 205, 262 200 L 300 200 L 300 300 L 200 300 L 200 262 C 195 261, 188 268, 182 265 C 178 258, 178 242, 182 235 C 188 232, 195 239, 200 238 L 200 200 Z",
+  },
 ];
 
 export default function GourmetExperiencePage() {
@@ -256,9 +338,10 @@ export default function GourmetExperiencePage() {
             
             {/* 
               Top Section with image.png Background:
-              Tightened aspect ratio so the bowls sit right above Food.
+              Calibrated so the bowl curve touches right above the Food title,
+              exactly matching Table & Thyme Food Menu.png.
             */}
-            <div className="relative w-full aspect-[940/930] overflow-hidden">
+            <div className="relative w-full aspect-[940/900] overflow-hidden">
               <Image
                 src="/image.png"
                 alt="Table & Thyme Background"
@@ -324,10 +407,11 @@ export default function GourmetExperiencePage() {
 
             {/* 
               Lower Menu Content:
-              Pulled higher (-mt-14) so "Food" aligns directly with the bottom curve of the bowl,
+              Natural transparent flow on inherent page white background.
+              Pulled higher (-mt-16) so "Food" aligns directly with the bottom curve of the bowl,
               exactly matching Table & Thyme Food Menu.png.
             */}
-            <div className="px-8 -mt-14 relative z-20 pb-20">
+            <div className="px-8 -mt-16 relative z-20 pb-20">
               {/* "Food" Heading strictly matching source of truth */}
               <div className="mb-4">
                 <h2 className="text-[34px] font-extrabold text-[#051D45] tracking-tight leading-none">
@@ -597,58 +681,68 @@ export default function GourmetExperiencePage() {
                     </div>
 
                     {/* 
-                      3x3 Grid of Clean White Pieces with Dotted Interlocking Borders:
-                      Locked pieces are pure white with subtle dotted borders and irregular connecting tabs.
+                      3x3 Full-Surface Interlocking Jigsaw SVG:
+                      Pieces interlock with zero gaps. Locked pieces are pure white with dotted stroke lines.
+                      Unlocked pieces are transparent, revealing the crest logo below.
                     */}
-                    <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 z-10">
+                    <svg
+                      className="absolute inset-0 w-full h-full z-10"
+                      viewBox="0 0 300 300"
+                    >
                       {PUZZLE_TILES.map((tile) => {
                         const isUnlocked = collectedPieces.includes(tile.id);
                         return (
-                          <div
+                          <g
                             key={tile.id}
-                            className={`relative transition-all duration-500 flex items-center justify-center overflow-hidden ${
-                              isUnlocked ? "bg-transparent" : "bg-white"
-                            }`}
+                            className="cursor-pointer transition-opacity duration-300"
+                            onClick={() => {
+                              if (!isUnlocked) {
+                                unlockPieceById(tile.id, `Piece #${tile.id + 1} unlocked!`);
+                              }
+                            }}
                           >
-                            {/* Interlocking Jigsaw SVG with Dotted Connecting Borders */}
-                            <svg
-                              className="absolute inset-0 w-full h-full pointer-events-none"
-                              viewBox="0 0 100 100"
-                              preserveAspectRatio="none"
-                            >
-                              {/* Dotted border outline with irregular interlocking knob */}
-                              <path
-                                d={
-                                  // Irregular puzzle piece shape with classic jigsaw tab
-                                  `M 0,0 
-                                   H ${tile.top === 1 ? '38 C 38,15 62,15 62,0' : tile.top === -1 ? '38 C 38,-15 62,-15 62,0' : '50'} H 100 
-                                   V ${tile.right === 1 ? '38 C 115,38 115,62 100,62' : tile.right === -1 ? '85,38 85,62 100,62' : '50'} V 100 
-                                   H ${tile.bottom === 1 ? '62 C 62,115 38,115 38,100' : tile.bottom === -1 ? '62,85 38,85 38,100' : '50'} H 0 
-                                   V ${tile.left === 1 ? '62 C -15,62 -15,38 0,38' : tile.left === -1 ? '15,62 15,38 0,38' : '50'} Z`
-                                }
-                                fill={isUnlocked ? "none" : "#FFFFFF"}
-                                stroke="#A0ABC0"
-                                strokeWidth="1.8"
-                                strokeDasharray="3 3"
-                              />
-                            </svg>
+                            {/* Interlocking Puzzle Piece Path */}
+                            <path
+                              d={tile.path}
+                              fill={isUnlocked ? "transparent" : "#FFFFFF"}
+                              stroke="#64748B"
+                              strokeWidth="1.2"
+                              strokeDasharray="3 3"
+                              className="transition-colors duration-500"
+                            />
 
+                            {/* Centered Lock / Checkmark status within tile */}
                             {!isUnlocked ? (
-                              <div className="relative z-10 flex flex-col items-center justify-center text-center select-none p-1">
-                                <Lock className="w-3.5 h-3.5 text-[#7E89A4] mb-0.5" />
-                                <span className="text-[10px] font-bold text-[#7E89A4]">
+                              <g transform={`translate(${tile.cx}, ${tile.cy})`}>
+                                <circle r="12" fill="#F8FAFC" stroke="#CBD5E1" strokeWidth="1" />
+                                <text
+                                  textAnchor="middle"
+                                  dominantBaseline="central"
+                                  y="-1"
+                                  fontSize="9"
+                                  fontWeight="bold"
+                                  fill="#64748B"
+                                >
                                   {tile.id + 1}
-                                </span>
-                              </div>
+                                </text>
+                              </g>
                             ) : (
-                              <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-[#003B87] text-white flex items-center justify-center shadow-xs z-10">
-                                <CheckCircle2 className="w-3 h-3 stroke-[2.5]" />
-                              </div>
+                              <g transform={`translate(${tile.cx + 24}, ${tile.cy - 24})`}>
+                                <circle r="7" fill="#003B87" />
+                                <path
+                                  d="M -3 -0.5 L -1 1.5 L 3 -2"
+                                  fill="none"
+                                  stroke="#FFFFFF"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </g>
                             )}
-                          </div>
+                          </g>
                         );
                       })}
-                    </div>
+                    </svg>
                   </div>
 
                   <div className="mt-4 flex items-center justify-between text-xs">
