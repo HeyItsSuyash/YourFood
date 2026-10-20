@@ -1,6 +1,5 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
 
 const SECRET_KEY = new TextEncoder().encode(
   process.env.JWT_SECRET || "yourfood_super_secret_jwt_key_2026_auth_production_secure_token"
@@ -15,7 +14,7 @@ export interface SessionPayload {
   orgName: string;
   role: "owner" | "admin" | "manager" | "kitchen" | "waiter" | "cashier" | "marketing";
   locationId?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export const AUTH_COOKIE_NAME = "yourfood_session";
@@ -32,7 +31,7 @@ export async function verifySessionToken(token: string): Promise<SessionPayload 
   try {
     const { payload } = await jwtVerify(token, SECRET_KEY);
     return payload as unknown as SessionPayload;
-  } catch (err) {
+  } catch {
     return null;
   }
 }

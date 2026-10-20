@@ -361,7 +361,7 @@ export const notificationDeliveries = pgTable("notification_deliveries", {
   title: text("title").notNull(),
   body: text("body").notNull(),
   status: text("status").default("delivered").notNull(), // "delivered", "failed", "pending"
-  metadata: jsonb("metadata").$type<Record<string, any>>().default({}),
+  metadata: jsonb("metadata").$type<Record<string, unknown>>().default({}),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (t) => ({
   orgDeliveryIdx: index("notification_deliveries_org_idx").on(t.orgId, t.createdAt),
@@ -376,7 +376,7 @@ export const customerEvents = pgTable("customer_events", {
   customerId: uuid("customer_id").references(() => customers.id, { onDelete: "cascade" }).notNull(),
   eventType: text("event_type").notNull(), // "qr_scan", "order_placed", "order_completed", "piece_earned", "reward_redeemed"
   title: text("title").notNull(),
-  metadata: jsonb("metadata").$type<Record<string, any>>().default({}),
+  metadata: jsonb("metadata").$type<Record<string, unknown>>().default({}),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (t) => ({
   custEventIdx: index("customer_events_cust_idx").on(t.customerId, t.createdAt),
@@ -387,7 +387,7 @@ export const auditLogs = pgTable("audit_logs", {
   orgId: uuid("org_id").references(() => organizations.id, { onDelete: "cascade" }).notNull(),
   userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
   action: text("action").notNull(), // "update_menu", "cancel_order", "create_campaign"
-  details: jsonb("details").$type<Record<string, any>>(),
+  details: jsonb("details").$type<Record<string, unknown>>(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (t) => ({
   orgAuditIdx: index("audit_logs_org_idx").on(t.orgId, t.createdAt),
