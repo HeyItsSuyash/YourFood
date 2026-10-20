@@ -1,3 +1,4 @@
+// seed script
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -13,6 +14,7 @@ import {
   modifierOptions,
   tables,
   loyaltyCampaigns,
+  prizeCatalogue,
   notificationTemplates,
 } from "../src/db/schema";
 import bcrypt from "bcryptjs";
@@ -21,7 +23,10 @@ import { generateQrToken } from "../src/lib/utils";
 async function runSeed() {
   console.log("🌱 Starting production-grade seed for YourFood...");
 
-  // 1. Create Organization: "L'Atelier Bistro & Craft Bar"
+  // 1. Clean prior demo data
+  await db.delete(organizations);
+  await db.delete(users);
+
   const [org] = await db
     .insert(organizations)
     .values({
@@ -314,10 +319,10 @@ async function runSeed() {
   console.log("Created Menu Items with rich food imagery, labels, and modifiers");
 
   // 7. Gamified Puzzle Loyalty Campaign
-  await db.insert(loyaltyCampaigns).values({
+  const [campaign] = await db.insert(loyaltyCampaigns).values({
     orgId: org.id,
     title: "The Connoisseur's Culinary Quest",
-    description: "Collect all 4 pieces of the Gourmet Crest with each eligible dining order ($20+), and unlock a complimentary 20% discount on your next visit.",
+    description: "Complete all 4 pieces of the Gourmet Crest by dining, installing the app, and leaving your private feedback to unlock the Grand Lucky Draw.",
     artworkTheme: "culinary_art",
     totalPieces: 4,
     minOrderAmount: 2000, // $20.00
@@ -326,9 +331,66 @@ async function runSeed() {
     rewardValue: 20,
     rewardDescription: "20% Off Your Entire Bill",
     isActive: true,
-  });
+  }).returning();
 
-  console.log("Created 4-Piece Gamified Puzzle Loyalty Campaign");
+  console.log("Created 4-Piece Gamified Puzzle Loyalty Campaign:", campaign.id);
+
+  // 7b. Seed Prize Catalogue for Lucky Draw
+  const samplePrizes = [
+    {
+      orgId: org.id,
+      campaignId: campaign.id,
+      title: "Complimentary Valrhona Chocolate Soufflé",
+      description: "Baked to order with Tahitian vanilla bean creme anglaise & gold leaf.",
+      category: "complimentary_food",
+      rewardType: "free_item" as const,
+      rewardValue: 1600, // $16.00 value
+      oddsWeight: 40,
+      inventoryCount: 25,
+      imageUrl: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      orgId: org.id,
+      campaignId: campaign.id,
+      title: "25% Off Your Next Dining Experience",
+      description: "A prestigious 25% discount applicable across all artisan starters and signature mains.",
+      category: "percent_discount",
+      rewardType: "percent_discount" as const,
+      rewardValue: 25,
+      oddsWeight: 30,
+      inventoryCount: 50,
+      imageUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      orgId: org.id,
+      campaignId: campaign.id,
+      title: "$20 Dining Credit Voucher",
+      description: "Fixed $20 credit towards your next bill at L'Atelier Bistro.",
+      category: "voucher",
+      rewardType: "fixed_discount" as const,
+      rewardValue: 2000, // $20.00
+      oddsWeight: 20,
+      inventoryCount: 15,
+      imageUrl: "https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      orgId: org.id,
+      campaignId: campaign.id,
+      title: "Chef's Private Reserve Wine Pairing",
+      description: "Complimentary sommelier pairing on your next tasting course reservation.",
+      category: "future_visit",
+      rewardType: "complimentary_upgrade" as const,
+      rewardValue: 2800, // $28.00 value
+      oddsWeight: 10,
+      inventoryCount: 10,
+      imageUrl: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80",
+    },
+  ];
+
+  for (const prize of samplePrizes) {
+    await db.insert(prizeCatalogue).values(prize);
+  }
+  console.log("Created 4 Diverse Lucky Draw Prizes");
 
   // 8. Notification Templates
   const notificationConfigs = [

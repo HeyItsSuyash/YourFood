@@ -1,101 +1,119 @@
-import Image from "next/image";
+import Link from "next/link";
+import { QrCode, Utensils, Award, Sparkles, ArrowRight, ShieldCheck } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <main className="min-h-screen bg-background text-neutral-900 flex flex-col justify-between p-6 max-w-md mx-auto">
+      {/* Brand Header */}
+      <div className="pt-8 text-center">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-50 text-primary-700 text-xs font-semibold tracking-wide border border-primary-200/50 mb-4">
+          <Sparkles className="w-3.5 h-3.5" />
+          Mobile Dining & Loyalty Experience
+        </span>
+        <h1 className="text-3xl font-bold tracking-tight text-neutral-900">
+          L&apos;Atelier Gourmet
+        </h1>
+        <p className="text-sm text-neutral-500 mt-2 leading-relaxed">
+          Artisan dining, instant QR contactless ordering, and the collector&apos;s Connoisseur Quest rewards.
+        </p>
+      </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+      {/* Visual Feature Cards */}
+      <div className="my-8 space-y-3">
+        <Link
+          href="/r/latelier"
+          className="group block p-4 rounded-2xl bg-surface border border-neutral-200/80 shadow-subtle hover:border-primary-300 hover:shadow-card transition-all"
         >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center font-medium">
+                <Utensils className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-neutral-900 group-hover:text-primary-700 transition-colors">
+                  Open Restaurant Menu
+                </h3>
+                <p className="text-xs text-neutral-500 mt-0.5">
+                  Browse dishes, select doneness, order to table
+                </p>
+              </div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-neutral-400 group-hover:text-primary-600 group-hover:translate-x-0.5 transition-all" />
+          </div>
+        </Link>
+
+        <Link
+          href="/demo"
+          className="group block p-4 rounded-2xl bg-surface border border-neutral-200/80 shadow-subtle hover:border-primary-300 hover:shadow-card transition-all"
         >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-medium">
+                <QrCode className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-neutral-900 group-hover:text-primary-700 transition-colors">
+                  QR Code Generator & Tables
+                </h3>
+                <p className="text-xs text-neutral-500 mt-0.5">
+                  Scan simulation across Window, Booth, Patio tables
+                </p>
+              </div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-neutral-400 group-hover:text-primary-600 group-hover:translate-x-0.5 transition-all" />
+          </div>
+        </Link>
+
+        <Link
+          href="/puzzle"
+          className="group block p-4 rounded-2xl bg-surface border border-neutral-200/80 shadow-subtle hover:border-primary-300 hover:shadow-card transition-all"
         >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-medium">
+                <Award className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-neutral-900 group-hover:text-primary-700 transition-colors">
+                  Jigsaw Puzzle & Lucky Draw
+                </h3>
+                <p className="text-xs text-neutral-500 mt-0.5">
+                  Collect crest pieces and select grand prizes
+                </p>
+              </div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-neutral-400 group-hover:text-primary-600 group-hover:translate-x-0.5 transition-all" />
+          </div>
+        </Link>
+
+        <Link
+          href="/staff"
+          className="group block p-4 rounded-2xl bg-surface border border-neutral-200/80 shadow-subtle hover:border-primary-300 hover:shadow-card transition-all"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center font-medium">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-neutral-900 group-hover:text-primary-700 transition-colors">
+                  Staff Verification Portal
+                </h3>
+                <p className="text-xs text-neutral-500 mt-0.5">
+                  Approve eligible return visit loyalty pieces
+                </p>
+              </div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-neutral-400 group-hover:text-primary-600 group-hover:translate-x-0.5 transition-all" />
+          </div>
+        </Link>
+      </div>
+
+      {/* Footer */}
+      <footer className="text-center text-xs text-neutral-400 pb-4">
+        <p>YourFood Mobile-First Hospitality Platform</p>
+        <p className="text-[11px] mt-1 text-neutral-400">Strictly Non-Manipulative • Zero Nudge Philosophy</p>
       </footer>
-    </div>
+    </main>
   );
 }

@@ -57,6 +57,13 @@ export const rewardTypeEnum = pgEnum("reward_type", [
   "complimentary_upgrade",
 ]);
 
+export const pieceEarnReasonEnum = pgEnum("piece_earn_reason", [
+  "pwa_install",
+  "comment_submission",
+  "qualifying_visit",
+  "initial_order",
+]);
+
 // ==========================================
 // 1. ORGANIZATIONS (Restaurants / Brands)
 // ==========================================
@@ -314,11 +321,60 @@ export const customerPuzzlePieces = pgTable("customer_puzzle_pieces", {
   campaignId: uuid("campaign_id").references(() => loyaltyCampaigns.id, { onDelete: "cascade" }).notNull(),
   customerId: uuid("customer_id").references(() => customers.id, { onDelete: "cascade" }).notNull(),
   pieceIndex: integer("piece_index").notNull(), // 0 to (totalPieces - 1)
+  reason: pieceEarnReasonEnum("reason").default("initial_order").notNull(),
   orderId: uuid("order_id").references(() => orders.id, { onDelete: "set null" }), // qualifying order
+  approvedByUserId: uuid("approved_by_user_id").references(() => users.id, { onDelete: "set null" }),
   unlockedAt: timestamp("unlocked_at", { withTimezone: true }).defaultNow().notNull(),
 }, (t) => ({
-  // Ensure a customer cannot earn duplicate piece for the exact same order or pieceIndex in same campaign cycle
   uniquePieceIdx: uniqueIndex("customer_puzzle_unique_piece_idx").on(t.campaignId, t.customerId, t.pieceIndex),
+}));
+
+// Feedback comments (Private feedback awarding exactly 2 pieces)
+export const feedbackComments = pgTable("feedback_comments", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  orgId: uuid("org_id").references(() => organizations.id, { onDelete: "cascade" }).notNull(),
+  customerId: uuid("customer_id").references(() => customers.id, { onDelete: "cascade" }).notNull(),
+  orderId: uuid("order_id").references(() => orders.id, { onDelete: "set null" }),
+  rating: integer("rating").default(5).notNull(), // 1 to 5 optional star rating
+  commentText: text("comment_text").notNull(),
+  serviceAspects: jsonb("service_aspects").$type<string[]>().default([]),
+  piecesAwarded: integer("pieces_awarded").default(2).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (t) => ({
+  orgCustIdx: index("feedback_comments_org_cust_idx").on(t.orgId, t.customerId),
+}));
+
+// Lucky Draw Prize Catalogue
+export const prizeCatalogue = pgTable("prize_catalogue", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  orgId: uuid("org_id").references(() => organizations.id, { onDelete: "cascade" }).notNull(),
+  campaignId: uuid("campaign_id").references(() => loyaltyCampaigns.id, { onDelete: "cascade" }).notNull(),
+  title: text("title").notNull(), // e.g. "Free Valrhona Chocolate Soufflé"
+  description: text("description").notNull(),
+  category: text("category").notNull(), // "complimentary_food", "percent_discount", "voucher", "future_visit"
+  rewardType: rewardTypeEnum("reward_type").notNull(),
+  rewardValue: integer("reward_value").notNull(), // In cents or percentage
+  oddsWeight: integer("odds_weight").default(100).notNull(), // Weight for probability calculation
+  inventoryCount: integer("inventory_count").default(50).notNull(), // -1 for unlimited
+  imageUrl: text("image_url"),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+// Lucky Draw Participation & Outcome
+export const customerDrawEntries = pgTable("customer_draw_entries", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  orgId: uuid("org_id").references(() => organizations.id, { onDelete: "cascade" }).notNull(),
+  campaignId: uuid("campaign_id").references(() => loyaltyCampaigns.id, { onDelete: "cascade" }).notNull(),
+  customerId: uuid("customer_id").references(() => customers.id, { onDelete: "cascade" }).notNull(),
+  preferredPrizeId: uuid("preferred_prize_id").references(() => prizeCatalogue.id, { onDelete: "restrict" }).notNull(),
+  wonPrizeId: uuid("won_prize_id").references(() => prizeCatalogue.id, { onDelete: "restrict" }).notNull(),
+  rewardId: uuid("reward_id").references(() => customerRewards.id, { onDelete: "set null" }),
+  drawMode: text("draw_mode").default("preference_weighted").notNull(), // "preference_weighted", "guaranteed_preferred", "pure_random"
+  status: text("status").default("completed").notNull(),
+  drawnAt: timestamp("drawn_at", { withTimezone: true }).defaultNow().notNull(),
+}, (t) => ({
+  uniqueCustomerCampaignDraw: uniqueIndex("customer_draw_unique_campaign_idx").on(t.campaignId, t.customerId),
 }));
 
 export const customerRewards = pgTable("customer_rewards", {
@@ -326,6 +382,7 @@ export const customerRewards = pgTable("customer_rewards", {
   orgId: uuid("org_id").references(() => organizations.id, { onDelete: "cascade" }).notNull(),
   campaignId: uuid("campaign_id").references(() => loyaltyCampaigns.id, { onDelete: "cascade" }).notNull(),
   customerId: uuid("customer_id").references(() => customers.id, { onDelete: "cascade" }).notNull(),
+  prizeId: uuid("prize_id").references(() => prizeCatalogue.id, { onDelete: "set null" }),
   rewardCode: text("reward_code").notNull().unique(), // e.g. "YF-GOLD-8492"
   rewardType: rewardTypeEnum("reward_type").notNull(),
   rewardValue: integer("reward_value").notNull(),

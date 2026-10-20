@@ -1,0 +1,17 @@
+{
+  "name": "YourFood - Artisan Dining & Loyalty",
+  "short_name": "YourFood",
+  "description": "Artisan dining, contactless ordering, and collector quest rewards",
+  "start_url": "/demo?installed=true",
+  "display": "standalone",
+  "background_color": "#FAF9F6",
+  "theme_color": "#BE123C",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}
