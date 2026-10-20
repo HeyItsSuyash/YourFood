@@ -22,8 +22,6 @@ import {
   Receipt,
   MapPin,
   Lock,
-  Unlock,
-  Tag,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { MenuItem, MOCK_MENU, MOCK_PRIZES, PrizeOption } from "@/lib/mockData";
@@ -41,7 +39,7 @@ interface PlacedOrder {
   time: string;
 }
 
-// 9 Jigsaw Piece Definitions with Distinct Earn Actions & Clear Origins
+// 9 Jigsaw Piece Definitions (3x3 grid)
 const PUZZLE_TILES = [
   { id: 0, row: 0, col: 0, title: "Artisan Order Initiation", actionDesc: "Place your table order" },
   { id: 1, row: 0, col: 1, title: "Install Fast App", actionDesc: "Save app to home screen" },
@@ -82,7 +80,6 @@ export default function GourmetExperiencePage() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
   useEffect(() => {
-    // Read query params if routed from /puzzle or /draw
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get("tab") as ActiveTab;
@@ -182,7 +179,7 @@ export default function GourmetExperiencePage() {
     localStorage.setItem("tablethyme_order", JSON.stringify(newOrder));
     setCart({});
 
-    // Unlock Piece 0 & Piece 5 (Beverage/Meal combo)
+    // Unlock Piece 0 & Piece 5
     const updated = Array.from(new Set([...collectedPieces, 0, 5]));
     savePieces(updated);
 
@@ -216,7 +213,6 @@ export default function GourmetExperiencePage() {
   function handleSubmitFeedback() {
     if (!feedbackText.trim()) return;
     setShowFeedbackModal(false);
-    // Unlocks piece 2 (Culinary Rating) & piece 3 (Chef Notes)
     const updated = Array.from(new Set([...collectedPieces, 2, 3]));
     savePieces(updated);
     setFeedbackToast("Feedback received! 2 Jigsaw Pieces Unlocked.");
@@ -231,7 +227,6 @@ export default function GourmetExperiencePage() {
     confetti({ particleCount: 100, spread: 100, origin: { y: 0.5 } });
   }
 
-  // Lucky Draw Execution
   function handleExecuteDraw() {
     setIsDrawing(true);
     setTimeout(() => {
@@ -247,26 +242,34 @@ export default function GourmetExperiencePage() {
 
   return (
     <div className="relative min-h-screen bg-[#F0F2F5] text-[#0A192F] flex flex-col items-center font-sans">
-      {/* Mobile Shell */}
+      {/* 
+        Mobile Screen Shell:
+        Using image.png as the background artwork, with exact typography and branding 
+        styled from the source of truth Table & Thyme Food Menu.png
+      */}
       <div className="w-full max-w-[430px] min-h-screen bg-[#F8F9FA] relative flex flex-col pb-24 overflow-x-hidden shadow-2xl">
         
         {/* ======================================================== */}
-        {/* 1. MENU VIEW: STRICTLY MATCHING Table & Thyme Food Menu  */}
+        {/* 1. MENU VIEW: image.png BACKGROUND + SOURCE OF TRUTH TEXT */}
         {/* ======================================================== */}
         {activeTab === "menu" && (
-          <div className="w-full flex flex-col">
-            {/* Header: Pure artwork from image without any phone bezel */}
-            <div className="relative w-full aspect-[780/870] overflow-hidden bg-[#003B87]">
+          <div className="w-full flex flex-col relative">
+            
+            {/* 
+              Top Section with image.png Background:
+              Contains the blue curve, food bowls on wooden board with NO baked text.
+            */}
+            <div className="relative w-full aspect-[780/890] overflow-hidden bg-[#003E8F]">
               <Image
-                src="/menu-clean-bg.png"
-                alt="Table & Thyme Food Menu Artwork"
+                src="/menu-bg-artwork.png"
+                alt="Table & Thyme Background Artwork"
                 fill
                 priority
                 className="object-cover object-top select-none pointer-events-none"
               />
 
-              {/* Status bar */}
-              <div className="absolute top-0 left-0 right-0 pt-3.5 px-7 flex justify-between items-center text-xs text-white font-semibold pointer-events-none z-10 tracking-tight">
+              {/* Status Bar: 9:41, Cellular Signal & Battery Icon */}
+              <div className="absolute top-0 left-0 right-0 pt-3.5 px-7 flex justify-between items-center text-xs text-white font-semibold pointer-events-none z-20 tracking-tight">
                 <span>9:41</span>
                 <div className="flex items-center gap-1.5">
                   <div className="flex gap-0.5 items-end h-2.5">
@@ -278,16 +281,78 @@ export default function GourmetExperiencePage() {
                   <span className="w-2.5 h-2.5 rounded-full border border-white inline-block" />
                 </div>
               </div>
+
+              {/* 
+                PROPER BRANDING & TEXT OVERLAY STYLED ACCORDING TO SOURCE OF TRUTH:
+                - Golden Double Leaf Icon + TABLE & THYME
+                - FOOD MENU (Large bold white geometric typography)
+                - FRESH & TASTY (Clean tracking subtitle)
+                - Rounded Golden Amber Pill Accent Bar
+              */}
+              <div className="absolute inset-0 pt-11 px-7 pointer-events-none z-10 flex flex-col justify-start">
+                
+                {/* 1. Brand Logo: Golden Leaf + TABLE & THYME */}
+                <div className="flex items-center gap-2.5 mb-5 mt-1">
+                  <svg
+                    viewBox="0 0 50 48"
+                    className="w-5 h-5 text-[#F6C16A] shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    {/* Left leaf */}
+                    <path d="M 25 44 C 14 36 4 28 4 14 C 18 14 24 22 25 44 Z" />
+                    {/* Right leaf */}
+                    <path d="M 25 44 C 36 36 46 28 46 14 C 32 14 26 22 25 44 Z" />
+                    {/* Stem & veins */}
+                    <line x1="25" y1="44" x2="25" y2="20" strokeWidth="2.5" />
+                    <line x1="25" y1="32" x2="16" y2="24" strokeWidth="2" />
+                    <line x1="25" y1="30" x2="34" y2="22" strokeWidth="2" />
+                  </svg>
+                  <span className="text-[13px] font-bold text-white tracking-[0.22em] uppercase leading-none">
+                    TABLE & THYME
+                  </span>
+                </div>
+
+                {/* 2. Main Title: FOOD MENU */}
+                <div className="leading-[0.88] select-none">
+                  <h1 className="text-[44px] sm:text-[46px] font-black text-white tracking-[-0.03em] uppercase block">
+                    FOOD
+                  </h1>
+                  <h1 className="text-[44px] sm:text-[46px] font-black text-white tracking-[-0.03em] uppercase block mt-1">
+                    MENU
+                  </h1>
+                </div>
+
+                {/* 3. Subtitle: FRESH & TASTY */}
+                <div className="mt-3">
+                  <span className="text-[11px] font-bold text-white/95 tracking-[0.24em] uppercase block">
+                    FRESH & TASTY
+                  </span>
+                </div>
+
+                {/* 4. Golden Pill Bar */}
+                <div className="mt-2.5">
+                  <div className="w-[52px] h-[7px] rounded-full bg-[#F6C16A] shadow-xs" />
+                </div>
+              </div>
             </div>
 
-            {/* Flat Menu List: No White Card, Exact Font and Colors */}
+            {/* 
+              Lower Menu Content:
+              Directly on the background with zero white card overlay!
+            */}
             <div className="px-7 pt-4 pb-20 bg-[#F8F9FA]">
+              {/* "Food" Heading strictly matching source of truth */}
               <div className="mb-5">
                 <h2 className="text-[34px] font-extrabold text-[#051D45] tracking-tight leading-none">
                   Food
                 </h2>
               </div>
 
+              {/* Menu Items List matching exact layout, font weight & dividers */}
               <div className="divide-y divide-[#E4E8EE]">
                 {MOCK_MENU.map((item) => {
                   const qty = cart[item.id] || 0;
@@ -465,7 +530,7 @@ export default function GourmetExperiencePage() {
               </button>
             </div>
 
-            {/* Receipt Summary */}
+            {/* Order Items Receipt */}
             <div className="p-5 rounded-3xl bg-white border border-[#E4E8EE] space-y-3">
               <div className="flex items-center gap-2 text-xs font-bold text-[#051D45] uppercase tracking-wider border-b border-[#E4E8EE] pb-2.5">
                 <Receipt className="w-4 h-4 text-[#7E89A4]" />
@@ -535,11 +600,7 @@ export default function GourmetExperiencePage() {
               </span>
             </div>
 
-            {/* 
-              3D FLIP CONTAINER:
-              - Front side: 3x3 interlocking puzzle revealing crest-logo.png
-              - Back side: Grand Offers Card revealed upon completion!
-            */}
+            {/* 3D Flip Container */}
             <div className="perspective-1000 w-full min-h-[350px]">
               <div
                 className={`relative w-full rounded-3xl transition-transform duration-700 transform-style-3d ${
@@ -558,11 +619,10 @@ export default function GourmetExperiencePage() {
                         className="object-cover"
                         priority
                       />
-                      {/* Dark overlay with Table & Thyme Watermark */}
                       <div className="absolute inset-0 bg-radial from-transparent to-black/40 pointer-events-none" />
                     </div>
 
-                    {/* 3x3 Grid Overlay with Interlocking Puzzle Borders */}
+                    {/* 3x3 Grid Overlay */}
                     <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 z-10">
                       {PUZZLE_TILES.map((tile) => {
                         const isUnlocked = collectedPieces.includes(tile.id);
@@ -575,7 +635,6 @@ export default function GourmetExperiencePage() {
                                 : "bg-[#051D45] hover:bg-[#08275C]"
                             }`}
                           >
-                            {/* Interlocking Puzzle Tabs using SVG overlay */}
                             <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-40">
                               <line x1="0" y1="0" x2="100%" y2="0" stroke="#FFFFFF" strokeWidth="1" />
                               <line x1="0" y1="0" x2="0" y2="100%" stroke="#FFFFFF" strokeWidth="1" />
@@ -599,7 +658,6 @@ export default function GourmetExperiencePage() {
                     </div>
                   </div>
 
-                  {/* Puzzle Controls */}
                   <div className="mt-4 flex items-center justify-between text-xs">
                     <span className="text-[#7E89A4]">
                       {isPuzzleComplete ? "All pieces gathered!" : "Collect remaining pieces below"}
