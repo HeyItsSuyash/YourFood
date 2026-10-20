@@ -241,25 +241,24 @@ export default function GourmetExperiencePage() {
   const isPuzzleComplete = collectedPieces.length >= 9;
 
   return (
-    <div className="relative min-h-screen bg-white text-[#0A192F] flex flex-col items-center font-sans">
+    <div className="relative min-h-screen text-[#051D45] flex flex-col items-center font-sans">
       {/* 
         Menu Shell:
-        Clean, flat white background container with NO extra background cards or gray borders.
+        NO background styling on container. 100% transparent/white natural flow.
       */}
-      <div className="w-full max-w-[430px] min-h-screen bg-white relative flex flex-col pb-24 overflow-x-hidden">
+      <div className="w-full max-w-[430px] min-h-screen relative flex flex-col pb-24 overflow-x-hidden">
         
         {/* ======================================================== */}
         {/* 1. MENU VIEW: image.png AS BACKGROUND + TEXT OVERLAY     */}
         {/* ======================================================== */}
         {activeTab === "menu" && (
-          <div className="w-full flex flex-col relative bg-white">
+          <div className="w-full flex flex-col relative">
             
             {/* 
               Top Section with image.png Background:
-              NO time, NO status icons (100% clean as requested).
-              The graphic from image.png fills the header container with absolute text overlay.
+              Tightened aspect ratio so the bowls sit right above Food.
             */}
-            <div className="relative w-full aspect-[940/1060] overflow-hidden bg-[#003E8F]">
+            <div className="relative w-full aspect-[940/930] overflow-hidden">
               <Image
                 src="/image.png"
                 alt="Table & Thyme Background"
@@ -275,10 +274,10 @@ export default function GourmetExperiencePage() {
                 - FRESH & TASTY (Tracked subtitle)
                 - Golden rounded pill bar
               */}
-              <div className="absolute inset-0 pt-10 px-8 pointer-events-none z-10 flex flex-col justify-start">
+              <div className="absolute inset-0 pt-9 px-8 pointer-events-none z-10 flex flex-col justify-start">
                 
                 {/* Brand Logo: Golden Leaf + TABLE & THYME */}
-                <div className="flex items-center gap-2.5 mb-5">
+                <div className="flex items-center gap-2.5 mb-4">
                   <svg
                     viewBox="0 0 50 48"
                     className="w-5 h-5 text-[#F6C16A] shrink-0"
@@ -310,7 +309,7 @@ export default function GourmetExperiencePage() {
                 </div>
 
                 {/* Subtitle: FRESH & TASTY */}
-                <div className="mt-3">
+                <div className="mt-2.5">
                   <span className="text-[11px] font-bold text-white/95 tracking-[0.24em] uppercase block">
                     FRESH & TASTY
                   </span>
@@ -325,11 +324,12 @@ export default function GourmetExperiencePage() {
 
             {/* 
               Lower Menu Content:
-              Flat, seamless pure white background container without cards or gray backgrounds.
+              Pulled higher (-mt-14) so "Food" aligns directly with the bottom curve of the bowl,
+              exactly matching Table & Thyme Food Menu.png.
             */}
-            <div className="px-8 pt-5 pb-20 bg-white">
+            <div className="px-8 -mt-14 relative z-20 pb-20">
               {/* "Food" Heading strictly matching source of truth */}
-              <div className="mb-5">
+              <div className="mb-4">
                 <h2 className="text-[34px] font-extrabold text-[#051D45] tracking-tight leading-none">
                   Food
                 </h2>
