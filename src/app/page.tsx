@@ -39,17 +39,18 @@ interface PlacedOrder {
   time: string;
 }
 
-// 9 Jigsaw Piece Definitions (3x3 grid)
+// 9 Jigsaw Piece Definitions with SVG interlocking puzzle paths
+// tab: 1 = outward knob, -1 = inward hole, 0 = flat border
 const PUZZLE_TILES = [
-  { id: 0, row: 0, col: 0, title: "Artisan Order Initiation", actionDesc: "Place your table order" },
-  { id: 1, row: 0, col: 1, title: "Install Fast App", actionDesc: "Save app to home screen" },
-  { id: 2, row: 0, col: 2, title: "Culinary Rating", actionDesc: "Share 5-star experience" },
-  { id: 3, row: 1, col: 0, title: "Chef Private Notes", actionDesc: "Provide feedback comments" },
-  { id: 4, row: 1, col: 1, title: "Gourmet Table Pass", actionDesc: "Scan table fast pass" },
-  { id: 5, row: 1, col: 2, title: "Sommelier Special", actionDesc: "Pair beverage with meal" },
-  { id: 6, row: 2, col: 0, title: "Loyal Return Check", actionDesc: "Qualifying return visit" },
-  { id: 7, row: 2, col: 1, title: "Patio Celebration", actionDesc: "Dine on garden terrace" },
-  { id: 8, row: 2, col: 2, title: "Grand Keystone", actionDesc: "Final piece to complete crest" },
+  { id: 0, row: 0, col: 0, title: "Artisan Order", top: 0, right: 1, bottom: 1, left: 0 },
+  { id: 1, row: 0, col: 1, title: "Install Fast Pass", top: 0, right: -1, bottom: 1, left: -1 },
+  { id: 2, row: 0, col: 2, title: "Culinary Rating", top: 0, right: 0, bottom: -1, left: 1 },
+  { id: 3, row: 1, col: 0, title: "Chef Private Notes", top: -1, right: 1, bottom: 1, left: 0 },
+  { id: 4, row: 1, col: 1, title: "Gourmet Table Pass", top: -1, right: 1, bottom: -1, left: -1 },
+  { id: 5, row: 1, col: 2, title: "Sommelier Special", top: 1, right: 0, bottom: 1, left: -1 },
+  { id: 6, row: 2, col: 0, title: "Loyal Return Check", top: -1, right: -1, bottom: 0, left: 0 },
+  { id: 7, row: 2, col: 1, title: "Patio Celebration", top: 1, right: 1, bottom: 0, left: 1 },
+  { id: 8, row: 2, col: 2, title: "Grand Keystone", top: -1, right: 0, bottom: 0, left: -1 },
 ];
 
 export default function GourmetExperiencePage() {
@@ -60,7 +61,7 @@ export default function GourmetExperiencePage() {
   // Flow State
   const [currentOrder, setCurrentOrder] = useState<PlacedOrder | null>(null);
   
-  // 3x3 (9 pieces) state. Starts with [0, 4] for engaging progress
+  // 3x3 (9 pieces) state. Starts with [0, 4] for immediate engaging progress
   const [collectedPieces, setCollectedPieces] = useState<number[]>([0, 4]);
   const [isFlipped, setIsFlipped] = useState(false);
 
@@ -187,7 +188,6 @@ export default function GourmetExperiencePage() {
     confetti({ particleCount: 50, spread: 70, origin: { y: 0.6 } });
   }
 
-  // Jigsaw Puzzle Unlock Rules
   function unlockPieceById(id: number, message: string) {
     if (!collectedPieces.includes(id)) {
       const updated = Array.from(new Set([...collectedPieces, id]));
@@ -203,11 +203,11 @@ export default function GourmetExperiencePage() {
       deferredPrompt.prompt();
       deferredPrompt.userChoice.then((choice: any) => {
         if (choice.outcome === "accepted") {
-          unlockPieceById(1, "Installed! Jigsaw Piece #2 Unlocked.");
+          unlockPieceById(1, "Installed! Jigsaw Piece Unlocked.");
         }
       });
     }
-    unlockPieceById(1, "App Saved to Screen! Piece #2 Unlocked.");
+    unlockPieceById(1, "App Saved to Screen! Piece Unlocked.");
   }
 
   function handleSubmitFeedback() {
@@ -215,7 +215,7 @@ export default function GourmetExperiencePage() {
     setShowFeedbackModal(false);
     const updated = Array.from(new Set([...collectedPieces, 2, 3]));
     savePieces(updated);
-    setFeedbackToast("Feedback received! 2 Jigsaw Pieces Unlocked.");
+    setFeedbackToast("Feedback received! Jigsaw Pieces Unlocked.");
     confetti({ particleCount: 50, spread: 70, origin: { y: 0.5 } });
     setTimeout(() => setFeedbackToast(""), 4000);
   }
@@ -241,58 +241,44 @@ export default function GourmetExperiencePage() {
   const isPuzzleComplete = collectedPieces.length >= 9;
 
   return (
-    <div className="relative min-h-screen bg-[#F0F2F5] text-[#0A192F] flex flex-col items-center font-sans">
+    <div className="relative min-h-screen bg-white text-[#0A192F] flex flex-col items-center font-sans">
       {/* 
-        Mobile Screen Shell:
-        Using image.png as the background artwork, with exact typography and branding 
-        styled from the source of truth Table & Thyme Food Menu.png
+        Menu Shell:
+        Clean, flat white background container with NO extra background cards or gray borders.
       */}
-      <div className="w-full max-w-[430px] min-h-screen bg-[#F8F9FA] relative flex flex-col pb-24 overflow-x-hidden shadow-2xl">
+      <div className="w-full max-w-[430px] min-h-screen bg-white relative flex flex-col pb-24 overflow-x-hidden">
         
         {/* ======================================================== */}
-        {/* 1. MENU VIEW: image.png BACKGROUND + SOURCE OF TRUTH TEXT */}
+        {/* 1. MENU VIEW: image.png AS BACKGROUND + TEXT OVERLAY     */}
         {/* ======================================================== */}
         {activeTab === "menu" && (
-          <div className="w-full flex flex-col relative">
+          <div className="w-full flex flex-col relative bg-white">
             
             {/* 
               Top Section with image.png Background:
-              Contains the blue curve, food bowls on wooden board with NO baked text.
+              NO time, NO status icons (100% clean as requested).
+              The graphic from image.png fills the header container with absolute text overlay.
             */}
-            <div className="relative w-full aspect-[780/890] overflow-hidden bg-[#003E8F]">
+            <div className="relative w-full aspect-[940/1060] overflow-hidden bg-[#003E8F]">
               <Image
-                src="/menu-bg-artwork.png"
-                alt="Table & Thyme Background Artwork"
+                src="/image.png"
+                alt="Table & Thyme Background"
                 fill
                 priority
                 className="object-cover object-top select-none pointer-events-none"
               />
 
-              {/* Status Bar: 9:41, Cellular Signal & Battery Icon */}
-              <div className="absolute top-0 left-0 right-0 pt-3.5 px-7 flex justify-between items-center text-xs text-white font-semibold pointer-events-none z-20 tracking-tight">
-                <span>9:41</span>
-                <div className="flex items-center gap-1.5">
-                  <div className="flex gap-0.5 items-end h-2.5">
-                    <span className="w-0.5 h-1 bg-white rounded-full inline-block" />
-                    <span className="w-0.5 h-1.5 bg-white rounded-full inline-block" />
-                    <span className="w-0.5 h-2 bg-white rounded-full inline-block" />
-                    <span className="w-0.5 h-2.5 bg-white rounded-full inline-block" />
-                  </div>
-                  <span className="w-2.5 h-2.5 rounded-full border border-white inline-block" />
-                </div>
-              </div>
-
               {/* 
-                PROPER BRANDING & TEXT OVERLAY STYLED ACCORDING TO SOURCE OF TRUTH:
+                TEXT & LOGO OVERLAY STYLED EXACTLY AS IN Table & Thyme Food Menu.png:
                 - Golden Double Leaf Icon + TABLE & THYME
-                - FOOD MENU (Large bold white geometric typography)
-                - FRESH & TASTY (Clean tracking subtitle)
-                - Rounded Golden Amber Pill Accent Bar
+                - FOOD MENU (Large bold white typography)
+                - FRESH & TASTY (Tracked subtitle)
+                - Golden rounded pill bar
               */}
-              <div className="absolute inset-0 pt-11 px-7 pointer-events-none z-10 flex flex-col justify-start">
+              <div className="absolute inset-0 pt-10 px-8 pointer-events-none z-10 flex flex-col justify-start">
                 
-                {/* 1. Brand Logo: Golden Leaf + TABLE & THYME */}
-                <div className="flex items-center gap-2.5 mb-5 mt-1">
+                {/* Brand Logo: Golden Leaf + TABLE & THYME */}
+                <div className="flex items-center gap-2.5 mb-5">
                   <svg
                     viewBox="0 0 50 48"
                     className="w-5 h-5 text-[#F6C16A] shrink-0"
@@ -302,11 +288,8 @@ export default function GourmetExperiencePage() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   >
-                    {/* Left leaf */}
                     <path d="M 25 44 C 14 36 4 28 4 14 C 18 14 24 22 25 44 Z" />
-                    {/* Right leaf */}
                     <path d="M 25 44 C 36 36 46 28 46 14 C 32 14 26 22 25 44 Z" />
-                    {/* Stem & veins */}
                     <line x1="25" y1="44" x2="25" y2="20" strokeWidth="2.5" />
                     <line x1="25" y1="32" x2="16" y2="24" strokeWidth="2" />
                     <line x1="25" y1="30" x2="34" y2="22" strokeWidth="2" />
@@ -316,7 +299,7 @@ export default function GourmetExperiencePage() {
                   </span>
                 </div>
 
-                {/* 2. Main Title: FOOD MENU */}
+                {/* Main Heading: FOOD MENU */}
                 <div className="leading-[0.88] select-none">
                   <h1 className="text-[44px] sm:text-[46px] font-black text-white tracking-[-0.03em] uppercase block">
                     FOOD
@@ -326,14 +309,14 @@ export default function GourmetExperiencePage() {
                   </h1>
                 </div>
 
-                {/* 3. Subtitle: FRESH & TASTY */}
+                {/* Subtitle: FRESH & TASTY */}
                 <div className="mt-3">
                   <span className="text-[11px] font-bold text-white/95 tracking-[0.24em] uppercase block">
                     FRESH & TASTY
                   </span>
                 </div>
 
-                {/* 4. Golden Pill Bar */}
+                {/* Golden Accent Pill */}
                 <div className="mt-2.5">
                   <div className="w-[52px] h-[7px] rounded-full bg-[#F6C16A] shadow-xs" />
                 </div>
@@ -342,9 +325,9 @@ export default function GourmetExperiencePage() {
 
             {/* 
               Lower Menu Content:
-              Directly on the background with zero white card overlay!
+              Flat, seamless pure white background container without cards or gray backgrounds.
             */}
-            <div className="px-7 pt-4 pb-20 bg-[#F8F9FA]">
+            <div className="px-8 pt-5 pb-20 bg-white">
               {/* "Food" Heading strictly matching source of truth */}
               <div className="mb-5">
                 <h2 className="text-[34px] font-extrabold text-[#051D45] tracking-tight leading-none">
@@ -352,7 +335,7 @@ export default function GourmetExperiencePage() {
                 </h2>
               </div>
 
-              {/* Menu Items List matching exact layout, font weight & dividers */}
+              {/* Menu Items List matching exact layout & dividers */}
               <div className="divide-y divide-[#E4E8EE]">
                 {MOCK_MENU.map((item) => {
                   const qty = cart[item.id] || 0;
@@ -394,7 +377,7 @@ export default function GourmetExperiencePage() {
                               <span>Add</span>
                             </button>
                           ) : (
-                            <div className="flex items-center gap-2 bg-[#E9ECF2] rounded-full px-2 py-0.5 border border-[#D5DAE5]">
+                            <div className="flex items-center gap-2 bg-[#F1F3F7] rounded-full px-2 py-0.5 border border-[#D5DAE5]">
                               <button
                                 onClick={() => removeItem(item.id)}
                                 className="w-5 h-5 rounded-full bg-white flex items-center justify-center text-[#051D45] hover:text-black shadow-xs font-bold"
@@ -452,18 +435,15 @@ export default function GourmetExperiencePage() {
         )}
 
         {/* ======================================================== */}
-        {/* 2. ORDER CONFIRMATION VIEW                               */}
+        {/* 2. ORDER CONFIRMATION VIEW (NO EYEBROWS)                 */}
         {/* ======================================================== */}
         {activeTab === "order" && (
-          <div className="p-6 space-y-4">
+          <div className="p-6 space-y-4 bg-white">
             <div className="flex items-center justify-between pb-3 border-b border-[#E4E8EE]">
               <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#003B87]">
-                  Table & Thyme Kitchen
-                </span>
                 <h1 className="text-xl font-bold text-[#051D45]">Order Status</h1>
               </div>
-              <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-[#E9ECF2] text-[#051D45]">
+              <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-[#F1F3F7] text-[#051D45]">
                 {currentOrder?.orderNumber || "TT-2049"}
               </span>
             </div>
@@ -496,28 +476,25 @@ export default function GourmetExperiencePage() {
               </div>
             </div>
 
-            {/* Jigsaw Incentive Teaser Card */}
+            {/* Jigsaw Teaser Card (No eyebrow badges) */}
             <div className="p-5 rounded-3xl bg-gradient-to-br from-[#003B87] to-[#051D45] text-white shadow-md space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="p-1.5 rounded-lg bg-white/20 text-white">
                     <Puzzle className="w-4 h-4" />
                   </span>
-                  <span className="text-xs font-bold uppercase tracking-wider text-amber-300">
-                    Connoisseur Crest (3x3 Jigsaw)
+                  <span className="text-sm font-bold text-white">
+                    Jigsaw Crest
                   </span>
                 </div>
-                <span className="text-[11px] text-blue-100 font-medium">
+                <span className="text-xs text-blue-100 font-medium">
                   {collectedPieces.length}/9 Pieces
                 </span>
               </div>
 
               <div>
-                <h3 className="text-sm font-semibold text-white">
-                  Jigsaw Pieces Unlocked!
-                </h3>
                 <p className="text-xs text-blue-100 mt-1 leading-relaxed">
-                  Your artisan dining order unlocked crest pieces. Complete all 9 pieces to flip the card and reveal the exclusive offers.
+                  Your dining order unlocked crest pieces! Complete all 9 pieces to flip the card and reveal your exclusive offers.
                 </p>
               </div>
 
@@ -525,14 +502,14 @@ export default function GourmetExperiencePage() {
                 onClick={() => setActiveTab("puzzle")}
                 className="w-full py-2.5 px-4 rounded-xl bg-white text-[#003B87] hover:bg-neutral-100 text-xs font-bold flex items-center justify-center gap-2 transition-transform active:scale-95"
               >
-                <span>View 3x3 Jigsaw Puzzle</span>
+                <span>View Jigsaw Puzzle</span>
                 <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
               </button>
             </div>
 
             {/* Order Items Receipt */}
             <div className="p-5 rounded-3xl bg-white border border-[#E4E8EE] space-y-3">
-              <div className="flex items-center gap-2 text-xs font-bold text-[#051D45] uppercase tracking-wider border-b border-[#E4E8EE] pb-2.5">
+              <div className="flex items-center gap-2 text-xs font-bold text-[#051D45] border-b border-[#E4E8EE] pb-2.5">
                 <Receipt className="w-4 h-4 text-[#7E89A4]" />
                 <span>Order Summary</span>
               </div>
@@ -576,23 +553,20 @@ export default function GourmetExperiencePage() {
         )}
 
         {/* ======================================================== */}
-        {/* 3. 3x3 JIGSAW PUZZLE WITH CARD FLIP & LOGO REVEAL        */}
+        {/* 3. 3x3 JIGSAW PUZZLE: WHITE, DOTTED, INTERLOCKING SVG    */}
         {/* ======================================================== */}
         {activeTab === "puzzle" && (
-          <div className="p-6 space-y-4">
+          <div className="p-6 space-y-4 bg-white">
             <div className="text-center pt-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#003B87] bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
-                Gourmet Crest Quest
-              </span>
-              <h2 className="text-2xl font-extrabold text-[#051D45] mt-2 tracking-tight">
-                3x3 Jigsaw Puzzle
+              <h2 className="text-2xl font-extrabold text-[#051D45] tracking-tight">
+                Jigsaw Puzzle
               </h2>
               <p className="text-xs text-[#7E89A4] mt-1 max-w-xs mx-auto leading-relaxed">
-                Assemble all 9 jigsaw pieces to reveal the Table & Thyme crest and flip the card for exclusive dining offers!
+                Assemble all 9 pieces to reveal the crest and flip the card for your exclusive dining offers.
               </p>
             </div>
 
-            {/* Progress Count */}
+            {/* Progress Count (No eyebrow badges) */}
             <div className="flex items-center justify-between px-2 text-xs font-semibold text-[#051D45]">
               <span>Crest Assembly:</span>
               <span className="text-[#003B87] font-bold">
@@ -607,48 +581,67 @@ export default function GourmetExperiencePage() {
                   isFlipped ? "rotate-y-180" : ""
                 }`}
               >
-                {/* ---------------- FRONT: 3x3 JIGSAW PUZZLE ---------------- */}
-                <div className="w-full bg-white rounded-3xl p-5 border border-[#E4E8EE] shadow-md backface-hidden">
-                  <div className="relative w-full aspect-square rounded-2xl overflow-hidden bg-[#0A192F] border-2 border-[#051D45] shadow-inner">
-                    {/* The Hidden Image Logo Behind the Puzzle */}
+                {/* ---------------- FRONT: 3x3 CLEAN WHITE DOTTED JIGSAW ---------------- */}
+                <div className="w-full bg-white rounded-3xl p-5 border border-[#E4E8EE] shadow-sm backface-hidden">
+                  <div className="relative w-full aspect-square rounded-2xl overflow-hidden bg-neutral-100 border border-[#D5DAE5]">
+                    
+                    {/* The Hidden Image Logo Revealed Underneath */}
                     <div className="absolute inset-0 z-0">
                       <Image
                         src="/crest-logo.png"
-                        alt="Table & Thyme Gourmet Crest"
+                        alt="Table & Thyme Crest Logo"
                         fill
                         className="object-cover"
                         priority
                       />
-                      <div className="absolute inset-0 bg-radial from-transparent to-black/40 pointer-events-none" />
                     </div>
 
-                    {/* 3x3 Grid Overlay */}
+                    {/* 
+                      3x3 Grid of Clean White Pieces with Dotted Interlocking Borders:
+                      Locked pieces are pure white with subtle dotted borders and irregular connecting tabs.
+                    */}
                     <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 z-10">
                       {PUZZLE_TILES.map((tile) => {
                         const isUnlocked = collectedPieces.includes(tile.id);
                         return (
                           <div
                             key={tile.id}
-                            className={`relative border border-[#051D45]/40 flex items-center justify-center transition-all duration-500 ${
-                              isUnlocked
-                                ? "bg-transparent hover:bg-white/10"
-                                : "bg-[#051D45] hover:bg-[#08275C]"
+                            className={`relative transition-all duration-500 flex items-center justify-center overflow-hidden ${
+                              isUnlocked ? "bg-transparent" : "bg-white"
                             }`}
                           >
-                            <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-40">
-                              <line x1="0" y1="0" x2="100%" y2="0" stroke="#FFFFFF" strokeWidth="1" />
-                              <line x1="0" y1="0" x2="0" y2="100%" stroke="#FFFFFF" strokeWidth="1" />
+                            {/* Interlocking Jigsaw SVG with Dotted Connecting Borders */}
+                            <svg
+                              className="absolute inset-0 w-full h-full pointer-events-none"
+                              viewBox="0 0 100 100"
+                              preserveAspectRatio="none"
+                            >
+                              {/* Dotted border outline with irregular interlocking knob */}
+                              <path
+                                d={
+                                  // Irregular puzzle piece shape with classic jigsaw tab
+                                  `M 0,0 
+                                   H ${tile.top === 1 ? '38 C 38,15 62,15 62,0' : tile.top === -1 ? '38 C 38,-15 62,-15 62,0' : '50'} H 100 
+                                   V ${tile.right === 1 ? '38 C 115,38 115,62 100,62' : tile.right === -1 ? '85,38 85,62 100,62' : '50'} V 100 
+                                   H ${tile.bottom === 1 ? '62 C 62,115 38,115 38,100' : tile.bottom === -1 ? '62,85 38,85 38,100' : '50'} H 0 
+                                   V ${tile.left === 1 ? '62 C -15,62 -15,38 0,38' : tile.left === -1 ? '15,62 15,38 0,38' : '50'} Z`
+                                }
+                                fill={isUnlocked ? "none" : "#FFFFFF"}
+                                stroke="#A0ABC0"
+                                strokeWidth="1.8"
+                                strokeDasharray="3 3"
+                              />
                             </svg>
 
                             {!isUnlocked ? (
-                              <div className="flex flex-col items-center justify-center p-2 text-center select-none">
-                                <Lock className="w-4 h-4 text-blue-200 mb-1" />
-                                <span className="text-[10px] font-bold text-white tracking-wider">
-                                  #{tile.id + 1}
+                              <div className="relative z-10 flex flex-col items-center justify-center text-center select-none p-1">
+                                <Lock className="w-3.5 h-3.5 text-[#7E89A4] mb-0.5" />
+                                <span className="text-[10px] font-bold text-[#7E89A4]">
+                                  {tile.id + 1}
                                 </span>
                               </div>
                             ) : (
-                              <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-[#003B87] text-white flex items-center justify-center shadow-xs">
+                              <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-[#003B87] text-white flex items-center justify-center shadow-xs z-10">
                                 <CheckCircle2 className="w-3 h-3 stroke-[2.5]" />
                               </div>
                             )}
@@ -660,12 +653,12 @@ export default function GourmetExperiencePage() {
 
                   <div className="mt-4 flex items-center justify-between text-xs">
                     <span className="text-[#7E89A4]">
-                      {isPuzzleComplete ? "All pieces gathered!" : "Collect remaining pieces below"}
+                      {isPuzzleComplete ? "All 9 pieces complete!" : "Unlock pieces below"}
                     </span>
                     {isPuzzleComplete && (
                       <button
                         onClick={() => setIsFlipped(true)}
-                        className="py-1 px-3 rounded-lg bg-[#003B87] text-white font-bold text-[11px] shadow-xs hover:bg-[#051D45]"
+                        className="py-1.5 px-3 rounded-lg bg-[#003B87] text-white font-bold text-xs shadow-xs hover:bg-[#051D45]"
                       >
                         Flip to Offers ↷
                       </button>
@@ -677,9 +670,9 @@ export default function GourmetExperiencePage() {
                 <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-[#003B87] via-[#051D45] to-[#0A192F] text-white rounded-3xl p-6 border border-white/20 shadow-2xl backface-hidden rotate-y-180 flex flex-col justify-between">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-amber-300 bg-white/10 px-2.5 py-0.5 rounded-full">
-                        Crest Complete • Card Flipped
-                      </span>
+                      <h3 className="text-xl font-extrabold text-white tracking-tight">
+                        Exclusive Dining Offers
+                      </h3>
                       <button
                         onClick={() => setIsFlipped(false)}
                         className="text-xs text-blue-200 hover:text-white"
@@ -688,30 +681,27 @@ export default function GourmetExperiencePage() {
                       </button>
                     </div>
 
-                    <h3 className="text-xl font-extrabold text-white tracking-tight pt-1">
-                      Exclusive Gourmet Offers
-                    </h3>
                     <p className="text-xs text-blue-100 leading-relaxed">
-                      Congratulations! By assembling all 9 pieces, you have unlocked our private tier dining vouchers:
+                      All 9 pieces collected! Choose your guaranteed reward from our kitchen:
                     </p>
 
                     <div className="space-y-2 pt-2">
-                      <div className="p-3 rounded-xl bg-white/10 border border-white/10 flex items-center justify-between">
+                      <div className="p-3.5 rounded-xl bg-white/10 border border-white/10 flex items-center justify-between">
                         <div>
                           <div className="text-xs font-bold text-white">100% Free Artisan Dessert</div>
                           <div className="text-[10px] text-blue-200">Tahitian Vanilla Soufflé or Chocolate Agnolotti</div>
                         </div>
-                        <span className="text-[10px] font-bold text-amber-300 bg-amber-400/20 px-2 py-0.5 rounded">
+                        <span className="text-xs font-bold text-amber-300">
                           FREE
                         </span>
                       </div>
 
-                      <div className="p-3 rounded-xl bg-white/10 border border-white/10 flex items-center justify-between">
+                      <div className="p-3.5 rounded-xl bg-white/10 border border-white/10 flex items-center justify-between">
                         <div>
                           <div className="text-xs font-bold text-white">25% Off Entire Table Check</div>
                           <div className="text-[10px] text-blue-200">Valid on any dinner or terrace reservation</div>
                         </div>
-                        <span className="text-[10px] font-bold text-amber-300 bg-amber-400/20 px-2 py-0.5 rounded">
+                        <span className="text-xs font-bold text-amber-300">
                           25% OFF
                         </span>
                       </div>
@@ -732,10 +722,10 @@ export default function GourmetExperiencePage() {
               </div>
             </div>
 
-            {/* Actions to Collect Pieces */}
+            {/* Actions to Collect Pieces (No eyebrow badges) */}
             <div className="space-y-3 pt-2">
               <div className="flex items-center justify-between px-1">
-                <h3 className="text-xs font-bold text-[#051D45] uppercase tracking-wider">
+                <h3 className="text-xs font-bold text-[#051D45]">
                   How to Unlock Pieces
                 </h3>
                 {!isPuzzleComplete && (
@@ -743,7 +733,7 @@ export default function GourmetExperiencePage() {
                     onClick={handleUnlockRemainingAll}
                     className="text-[11px] font-semibold text-[#003B87] hover:underline"
                   >
-                    Quick Unlock All Pieces
+                    Quick Unlock All
                   </button>
                 )}
               </div>
@@ -755,14 +745,9 @@ export default function GourmetExperiencePage() {
                     <Download className="w-4 h-4" />
                   </div>
                   <div>
-                    <div className="flex items-center gap-1.5">
-                      <h4 className="text-xs font-bold text-[#051D45]">Save App to Screen</h4>
-                      <span className="text-[9px] font-bold text-[#003B87] bg-blue-50 px-1.5 py-0.2 rounded">
-                        Piece #2
-                      </span>
-                    </div>
+                    <h4 className="text-xs font-bold text-[#051D45]">Save App to Screen</h4>
                     <p className="text-[11px] text-[#7E89A4] mt-0.5">
-                      Quick contactless access to Table & Thyme.
+                      Fast contactless access to Table & Thyme.
                     </p>
                   </div>
                 </div>
@@ -770,7 +755,7 @@ export default function GourmetExperiencePage() {
                 <button
                   onClick={handleInstallApp}
                   disabled={collectedPieces.includes(1)}
-                  className="py-1.5 px-3 rounded-lg bg-[#003B87] disabled:bg-[#E9ECF2] disabled:text-[#7E89A4] text-white text-xs font-semibold shrink-0"
+                  className="py-1.5 px-3 rounded-lg bg-[#003B87] disabled:bg-[#F1F3F7] disabled:text-[#7E89A4] text-white text-xs font-semibold shrink-0"
                 >
                   {collectedPieces.includes(1) ? "Claimed" : "Install"}
                 </button>
@@ -783,12 +768,7 @@ export default function GourmetExperiencePage() {
                     <MessageSquareQuote className="w-4 h-4" />
                   </div>
                   <div>
-                    <div className="flex items-center gap-1.5">
-                      <h4 className="text-xs font-bold text-[#051D45]">Culinary Notes & Rating</h4>
-                      <span className="text-[9px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded">
-                        Pieces #3 & #4
-                      </span>
-                    </div>
+                    <h4 className="text-xs font-bold text-[#051D45]">Culinary Notes & Rating</h4>
                     <p className="text-[11px] text-[#7E89A4] mt-0.5">
                       Share your thoughts on the Farmhouse Bowl.
                     </p>
@@ -798,7 +778,7 @@ export default function GourmetExperiencePage() {
                 <button
                   onClick={() => setShowFeedbackModal(true)}
                   disabled={collectedPieces.includes(2) && collectedPieces.includes(3)}
-                  className="py-1.5 px-3 rounded-lg bg-[#003B87] disabled:bg-[#E9ECF2] disabled:text-[#7E89A4] text-white text-xs font-semibold shrink-0"
+                  className="py-1.5 px-3 rounded-lg bg-[#003B87] disabled:bg-[#F1F3F7] disabled:text-[#7E89A4] text-white text-xs font-semibold shrink-0"
                 >
                   {collectedPieces.includes(2) ? "Reviewed" : "Review"}
                 </button>
@@ -811,12 +791,7 @@ export default function GourmetExperiencePage() {
                     <Clock className="w-4 h-4" />
                   </div>
                   <div>
-                    <div className="flex items-center gap-1.5">
-                      <h4 className="text-xs font-bold text-[#051D45]">Qualifying Return Visit</h4>
-                      <span className="text-[9px] font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.2 rounded">
-                        Pieces #7, #8, #9
-                      </span>
-                    </div>
+                    <h4 className="text-xs font-bold text-[#051D45]">Return Visit Check</h4>
                     <p className="text-[11px] text-[#7E89A4] mt-0.5">
                       Terrace table check & sommelier pairing.
                     </p>
@@ -824,9 +799,9 @@ export default function GourmetExperiencePage() {
                 </div>
 
                 <button
-                  onClick={() => unlockPieceById(6, "Return visit recorded! Piece #7 Unlocked.")}
+                  onClick={() => unlockPieceById(6, "Return visit recorded! Piece Unlocked.")}
                   disabled={collectedPieces.includes(6)}
-                  className="py-1.5 px-3 rounded-lg bg-[#003B87] disabled:bg-[#E9ECF2] disabled:text-[#7E89A4] text-white text-xs font-semibold shrink-0"
+                  className="py-1.5 px-3 rounded-lg bg-[#003B87] disabled:bg-[#F1F3F7] disabled:text-[#7E89A4] text-white text-xs font-semibold shrink-0"
                 >
                   {collectedPieces.includes(6) ? "Verified" : "Verify"}
                 </button>
@@ -842,16 +817,13 @@ export default function GourmetExperiencePage() {
         )}
 
         {/* ======================================================== */}
-        {/* 4. GRAND LUCKY DRAW VIEW                                 */}
+        {/* 4. GRAND LUCKY DRAW VIEW (NO EYEBROWS)                   */}
         {/* ======================================================== */}
         {activeTab === "draw" && (
-          <div className="p-6 space-y-4">
+          <div className="p-6 space-y-4 bg-white">
             <div className="text-center pt-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#003B87] bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
-                Grand Connoisseur Draw
-              </span>
-              <h2 className="text-2xl font-extrabold text-[#051D45] mt-2 tracking-tight">
-                Preferred Dining Reward
+              <h2 className="text-2xl font-extrabold text-[#051D45] tracking-tight">
+                Dining Rewards
               </h2>
               <p className="text-xs text-[#7E89A4] mt-1 max-w-xs mx-auto leading-relaxed">
                 Pick your preferred prize below. Drawing guarantees high priority for your choice.
@@ -865,10 +837,7 @@ export default function GourmetExperiencePage() {
                 </div>
 
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 bg-amber-50 px-2.5 py-1 rounded-full">
-                    Prize Unlocked!
-                  </span>
-                  <h3 className="text-lg font-bold text-[#051D45] mt-2">
+                  <h3 className="text-lg font-bold text-[#051D45]">
                     {wonPrize.title}
                   </h3>
                   <p className="text-xs text-[#7E89A4] mt-1 leading-relaxed">
@@ -897,18 +866,18 @@ export default function GourmetExperiencePage() {
               </div>
             ) : !isPuzzleComplete ? (
               <div className="p-6 rounded-3xl bg-white border border-[#E4E8EE] text-center space-y-3 shadow-xs">
-                <div className="w-12 h-12 rounded-full bg-[#E9ECF2] text-[#7E89A4] flex items-center justify-center mx-auto">
+                <div className="w-12 h-12 rounded-full bg-[#F1F3F7] text-[#7E89A4] flex items-center justify-center mx-auto">
                   <Lock className="w-6 h-6" />
                 </div>
                 <h3 className="text-base font-bold text-[#051D45]">Draw Currently Locked</h3>
                 <p className="text-xs text-[#7E89A4] max-w-xs mx-auto leading-relaxed">
-                  You have collected {collectedPieces.length} of 9 crest pieces. Finish assembling the 3x3 Connoisseur Jigsaw to enter the draw!
+                  You have collected {collectedPieces.length} of 9 crest pieces. Finish assembling the 3x3 Jigsaw to enter the draw!
                 </p>
                 <button
                   onClick={() => setActiveTab("puzzle")}
                   className="py-2.5 px-5 rounded-xl bg-[#003B87] text-white text-xs font-bold inline-flex items-center gap-1.5"
                 >
-                  <span>Complete 3x3 Puzzle</span>
+                  <span>Complete Jigsaw</span>
                   <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
                 </button>
               </div>
@@ -931,9 +900,6 @@ export default function GourmetExperiencePage() {
                           <div className="flex items-center gap-2">
                             <span className="text-xs font-bold text-[#051D45]">
                               {prize.title}
-                            </span>
-                            <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded">
-                              {prize.discountText}
                             </span>
                           </div>
                           <p className="text-[11px] text-[#7E89A4] mt-0.5">
@@ -1000,7 +966,7 @@ export default function GourmetExperiencePage() {
               }`}
             >
               <Puzzle className="w-5 h-5 mb-0.5" />
-              <span className="text-[10px]">3x3 Jigsaw</span>
+              <span className="text-[10px]">Jigsaw</span>
               {collectedPieces.length > 0 && (
                 <span className="absolute top-1 right-4 w-2 h-2 rounded-full bg-amber-500" />
               )}
@@ -1024,16 +990,13 @@ export default function GourmetExperiencePage() {
             <div className="w-full max-w-[430px] bg-white rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl space-y-4 animate-in slide-in-from-bottom">
               <div className="flex items-center justify-between border-b border-[#E4E8EE] pb-3">
                 <div>
-                  <span className="text-[10px] font-bold text-[#003B87] uppercase tracking-widest">
-                    Table & Thyme Kitchen
-                  </span>
                   <h3 className="text-xl font-bold text-[#051D45]">
                     {selectedItemDetail.name}
                   </h3>
                 </div>
                 <button
                   onClick={() => setSelectedItemDetail(null)}
-                  className="w-8 h-8 rounded-full bg-[#E9ECF2] text-[#7E89A4] flex items-center justify-center hover:bg-[#D5DAE5]"
+                  className="w-8 h-8 rounded-full bg-[#F1F3F7] text-[#7E89A4] flex items-center justify-center hover:bg-[#D5DAE5]"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -1069,10 +1032,7 @@ export default function GourmetExperiencePage() {
             <div className="w-full max-w-[430px] bg-white rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl space-y-4 animate-in slide-in-from-bottom">
               <div className="flex items-center justify-between border-b border-[#E4E8EE] pb-3">
                 <div>
-                  <h3 className="text-sm font-bold text-[#051D45]">Private Culinary Feedback</h3>
-                  <p className="text-[11px] text-[#7E89A4]">
-                    Awards +2 Jigsaw Puzzle Pieces
-                  </p>
+                  <h3 className="text-sm font-bold text-[#051D45]">Culinary Feedback</h3>
                 </div>
                 <button
                   onClick={() => setShowFeedbackModal(false)}
@@ -1124,7 +1084,7 @@ export default function GourmetExperiencePage() {
                 className="w-full py-3 rounded-xl bg-[#003B87] hover:bg-[#051D45] disabled:opacity-50 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-colors"
               >
                 <Send className="w-3.5 h-3.5" />
-                <span>Submit & Claim 2 Pieces</span>
+                <span>Submit Feedback</span>
               </button>
             </div>
           </div>
